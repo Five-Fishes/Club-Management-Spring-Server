@@ -2,7 +2,6 @@ package com.thirdcc.webapp.service.impl;
 
 import com.thirdcc.webapp.domain.enumeration.CCRoleType;
 import com.thirdcc.webapp.service.AdministratorService;
-import com.thirdcc.webapp.service.ClubFamilyService;
 import com.thirdcc.webapp.service.EventCrewService;
 import com.thirdcc.webapp.service.UserCCInfoService;
 import com.thirdcc.webapp.domain.UserCCInfo;
@@ -43,8 +42,6 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
 
     private final UserCCInfoMapper userCCInfoMapper;
 
-    private final ClubFamilyService clubFamilyService;
-
     private final UserUniInfoService userUniInfoService;
 
     private final EventCrewService eventCrewService;
@@ -53,14 +50,12 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
 
     public UserCCInfoServiceImpl(UserCCInfoRepository userCCInfoRepository,
                                  UserCCInfoMapper userCCInfoMapper,
-                                 ClubFamilyService clubFamilyService,
                                  UserUniInfoService userUniInfoService,
                                  EventCrewService eventCrewService,
                                  AdministratorService administratorService
     ) {
         this.userCCInfoRepository = userCCInfoRepository;
         this.userCCInfoMapper = userCCInfoMapper;
-        this.clubFamilyService = clubFamilyService;
         this.userUniInfoService = userUniInfoService;
         this.eventCrewService = eventCrewService;
         this.administratorService = administratorService;
@@ -235,11 +230,12 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
     }
 
     private UserCCInfoDTO clubFamilyDetails(UserCCInfoDTO userCCInfoDTO) {
-        clubFamilyService.findOne(userCCInfoDTO.getClubFamilyId())
-            .ifPresent(clubFamilyDTO -> {
-                userCCInfoDTO.setClubFamilyName(clubFamilyDTO.getName());
-                userCCInfoDTO.setClubFamilySlogan(clubFamilyDTO.getSlogan());
-            });
+        // TODO: [LU] update implementation
+//        clubFamilyService.findOne(userCCInfoDTO.getClubFamilyId())
+//            .ifPresent(clubFamilyDTO -> {
+//                userCCInfoDTO.setClubFamilyName(clubFamilyDTO.getName());
+//                userCCInfoDTO.setClubFamilySlogan(clubFamilyDTO.getSlogan());
+//            });
         return userCCInfoDTO;
     }
 }

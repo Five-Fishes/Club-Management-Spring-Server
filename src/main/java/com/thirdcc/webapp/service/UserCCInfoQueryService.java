@@ -89,9 +89,9 @@ public class UserCCInfoQueryService extends QueryService<UserCCInfo> {
       if (criteria.getUserId() != null) {
         specification = specification.and(buildRangeSpecification(criteria.getUserId(), UserCCInfo_.userId));
       }
-      if (criteria.getClubFamilyId() != null) {
-        specification = specification.and(buildRangeSpecification(criteria.getClubFamilyId(), UserCCInfo_.clubFamilyId));
-      }
+//      if (criteria.getClubFamilyId() != null) {
+//        specification = specification.and(buildRangeSpecification(criteria.getClubFamilyId(), UserCCInfo_.clubFamilyId));
+//      }
       if (criteria.getFamilyRole() != null) {
         specification = specification.and(buildSpecification(criteria.getFamilyRole(), UserCCInfo_.familyRole));
       }

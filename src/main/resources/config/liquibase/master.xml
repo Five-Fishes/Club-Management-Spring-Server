@@ -55,5 +55,6 @@
     <include file="config/liquibase/changelog/20210510_transaction_table_update.xml" relativeToChangelogFile="false" />
 
     <include file="config/liquibase/changelog/20210523150936_added_column_Event.xml" relativeToChangelogFile="false" />
+    <include file="config/liquibase/changelog/20210701100224_remove_ClubFamilyTable.xml" relativeToChangelogFile="false" />
 
 </databaseChangeLog>
