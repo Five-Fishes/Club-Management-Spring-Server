@@ -3,6 +3,7 @@ package com.thirdcc.webapp.web.rest;
 import com.thirdcc.webapp.ClubmanagementApp;
 import com.thirdcc.webapp.annotations.authorization.WithNormalUser;
 import com.thirdcc.webapp.domain.*;
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
 import com.thirdcc.webapp.domain.enumeration.EventCrewRole;
 import com.thirdcc.webapp.domain.enumeration.EventStatus;
@@ -94,7 +95,7 @@ public class UserResourceIT {
     private static final ClubFamilyRole DEFAULT_CLUB_FAMILY_ROLE = ClubFamilyRole.FATHER;
     private static final String DEFAULT_USER_CC_INFO_YEAR_SESSION = "2020/2021";
     private static final Long DEFAULT_USER_CC_INFO_USER_ID = 1L;
-    private static final Long DEFAULT_USER_CC_INFO_CLUB_FAMILY_ID = 1L;
+    private static final ClubFamilyCode DEFAULT_USER_CC_INFO_CLUB_FAMILY_CODE = ClubFamilyCode.JIN_LONG;
 
     @Autowired
     private UserRepository userRepository;
@@ -116,9 +117,6 @@ public class UserResourceIT {
 
     @Autowired
     private UserCCInfoRepository userCCInfoRepository;
-
-    @Autowired
-    private ClubFamilyRepository clubFamilyRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -186,7 +184,7 @@ public class UserResourceIT {
     public static UserCCInfo createUserCCInfoEntity() {
         UserCCInfo userCCInfo = new UserCCInfo();
         userCCInfo.setFamilyRole(DEFAULT_CLUB_FAMILY_ROLE);
-        userCCInfo.setClubFamilyId(DEFAULT_USER_CC_INFO_CLUB_FAMILY_ID);
+        userCCInfo.setClubFamilyCode(DEFAULT_USER_CC_INFO_CLUB_FAMILY_CODE);
         userCCInfo.setUserId(DEFAULT_USER_ID);
         userCCInfo.setYearSession(DEFAULT_USER_CC_INFO_YEAR_SESSION);
         return userCCInfo;
@@ -721,8 +719,6 @@ public class UserResourceIT {
         userCCInfo.setUserId(currentUser.getId());
         UserCCInfo savedUserCCInfo = userCCInfoRepository.save(userCCInfo);
 
-        ClubFamily savedClubFamily = getClubFamilyById(DEFAULT_USER_CC_INFO_CLUB_FAMILY_ID);
-
         restUserMockMvc.perform(get("/api/users/current"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -732,9 +728,7 @@ public class UserResourceIT {
             .andExpect(jsonPath("$.email").value(currentUser.getEmail()))
             .andExpect(jsonPath("$.gender").value(currentUser.getGender()))
             .andExpect(jsonPath("$.phoneNumber").value(currentUser.getPhoneNumber()))
-            .andExpect(jsonPath("$.dateOfBirth").value(currentUser.getDateOfBirth()))
-            .andExpect(jsonPath("$.clubFamilyName").value(savedClubFamily.getName()))
-            .andExpect(jsonPath("$.clubFamilySlogan").value(savedClubFamily.getSlogan()));
+            .andExpect(jsonPath("$.dateOfBirth").value(currentUser.getDateOfBirth()));
     }
 
     @Test
@@ -762,10 +756,6 @@ public class UserResourceIT {
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneWithAuthoritiesByLogin)
             .orElseThrow(() -> new BadRequestException("Cannot find user"));
-    }
-
-    private ClubFamily getClubFamilyById(Long id) {
-        return clubFamilyRepository.getOne(id);
     }
 
 }

@@ -1,21 +1,18 @@
 package com.thirdcc.webapp.web.rest;
 
-import com.netflix.discovery.converters.Auto;
 import com.thirdcc.webapp.ClubmanagementApp;
 import com.thirdcc.webapp.annotations.authorization.WithNormalUser;
 import com.thirdcc.webapp.annotations.init.InitYearSession;
-import com.thirdcc.webapp.domain.ClubFamily;
 import com.thirdcc.webapp.domain.User;
 import com.thirdcc.webapp.domain.UserCCInfo;
 import com.thirdcc.webapp.domain.UserUniInfo;
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
 import com.thirdcc.webapp.exception.BadRequestException;
-import com.thirdcc.webapp.repository.ClubFamilyRepository;
 import com.thirdcc.webapp.repository.UserCCInfoRepository;
 import com.thirdcc.webapp.repository.UserRepository;
 import com.thirdcc.webapp.repository.UserUniInfoRepository;
 import com.thirdcc.webapp.security.SecurityUtils;
-import com.thirdcc.webapp.service.UserUniInfoService;
 import com.thirdcc.webapp.service.dto.UserUniInfoDTO;
 import com.thirdcc.webapp.service.mapper.UserUniInfoMapper;
 
@@ -27,15 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.thirdcc.webapp.web.rest.TestUtil.sameNumber;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -81,7 +75,7 @@ public class UserUniInfoResourceIT {
     private static final UserUniStatus DEFAULT_STATUS = UserUniStatus.GRADUATED;
     private static final UserUniStatus UPDATED_STATUS = UserUniStatus.STUDYING;
 
-    private static final Long DEFAULT_USER_CC_CLUB_FAMILY_ID = 1L;
+    private static final ClubFamilyCode DEFAULT_USER_CC_CLUB_FAMILY_CODE = ClubFamilyCode.JIN_LONG;
     private static final ClubFamilyRole DEFAULT_USER_CC_FAMILY_ROLE = ClubFamilyRole.FATHER;
     private static final String DEFAULT_USER_CC_YEAR_SESSION = "2019/2020";
 
@@ -96,9 +90,6 @@ public class UserUniInfoResourceIT {
 
     @Autowired
     private UserCCInfoRepository userCCInfoRepository;
-
-    @Autowired
-    private ClubFamilyRepository clubFamilyRepository;
 
     @Autowired
     private EntityManager em;
@@ -154,7 +145,7 @@ public class UserUniInfoResourceIT {
     public static UserCCInfo createUserCCInfoEntity() {
         return new UserCCInfo()
             .userId(DEFAULT_USER_ID)
-            .clubFamilyId(DEFAULT_USER_CC_CLUB_FAMILY_ID)
+            .clubFamilyCode(DEFAULT_USER_CC_CLUB_FAMILY_CODE)
             .familyRole(DEFAULT_USER_CC_FAMILY_ROLE)
             .yearSession(DEFAULT_USER_CC_YEAR_SESSION);
     }
@@ -714,8 +705,6 @@ public class UserUniInfoResourceIT {
         userCCInfo.setUserId(user.getId());
         UserCCInfo savedUserCCInfo = userCCInfoRepository.saveAndFlush(userCCInfo);
 
-        ClubFamily clubFamily = getClubFamily(savedUserCCInfo.getClubFamilyId());
-
         restUserUniInfoMockMvc.perform(get("/api/user-uni-infos/current"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -732,11 +721,7 @@ public class UserUniInfoResourceIT {
             .andExpect(jsonPath("$.gender").value(user.getGender()))
             .andExpect(jsonPath("$.dateOfBirth").value(user.getDateOfBirth()))
             .andExpect(jsonPath("$.phoneNumber").value(user.getPhoneNumber()))
-            .andExpect(jsonPath("$.imageUrl").value(user.getImageUrl()))
-            .andExpect(jsonPath("$.clubFamilyId").value(clubFamily.getId()))
-            .andExpect(jsonPath("$.clubFamilyName").value(clubFamily.getName()))
-            .andExpect(jsonPath("$.clubFamilyDescription").value(clubFamily.getDescription()))
-            .andExpect(jsonPath("$.clubFamilySlogan").value(clubFamily.getSlogan()));
+            .andExpect(jsonPath("$.imageUrl").value(user.getImageUrl()));
     }
 
     @Test
@@ -872,11 +857,6 @@ public class UserUniInfoResourceIT {
             .flatMap(userRepository::findOneWithAuthoritiesByLogin)
             .orElseThrow(() -> new BadRequestException("Cannot find user"));
     }
-
-    private ClubFamily getClubFamily(Long clubFamilyId) {
-        return clubFamilyRepository.findById(clubFamilyId).get();
-    }
-
 
     private UserUniInfo initUserUniInfoDB() {
         User currentUser = getCurrentUser();

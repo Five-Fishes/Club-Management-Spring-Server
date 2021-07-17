@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.thirdcc.webapp.domain.User;
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
 
 /**
@@ -13,7 +14,7 @@ public class UserCCInfoDTO implements Serializable {
 
     public UserCCInfoDTO() { }
 
-    public UserCCInfoDTO(Long id, Long userId, Long clubFamilyId, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan) {
+    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyId, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan) {
         this.id = id;
         this.userId = userId;
         this.clubFamilyId = clubFamilyId;
@@ -40,7 +41,7 @@ public class UserCCInfoDTO implements Serializable {
 
     private Long userId;
 
-    private Long clubFamilyId;
+    private ClubFamilyCode clubFamilyId;
 
     private ClubFamilyRole familyRole;
 
@@ -70,11 +71,11 @@ public class UserCCInfoDTO implements Serializable {
         this.userId = userId;
     }
 
-    public Long getClubFamilyId() {
+    public ClubFamilyCode getClubFamilyId() {
         return clubFamilyId;
     }
 
-    public void setClubFamilyId(Long clubFamilyId) {
+    public void setClubFamilyId(ClubFamilyCode clubFamilyId) {
         this.clubFamilyId = clubFamilyId;
     }
 
@@ -170,7 +171,7 @@ public class UserCCInfoDTO implements Serializable {
 
         private Long id;
         private Long userId;
-        private Long clubFamilyId;
+        private ClubFamilyCode clubFamilyId;
         private ClubFamilyRole familyRole;
         private String yearSession;
         private String fishLevel;
@@ -188,7 +189,7 @@ public class UserCCInfoDTO implements Serializable {
             return this;
         }
 
-        public Builder clubFamilyId(Long clubFamilyId) {
+        public Builder clubFamilyId(ClubFamilyCode clubFamilyId) {
             this.clubFamilyId = clubFamilyId;
             return this;
         }
