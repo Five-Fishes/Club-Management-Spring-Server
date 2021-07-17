@@ -372,108 +372,56 @@ public class UserCCInfoResourceIT {
         defaultUserCCInfoShouldBeFound("userId.greaterThan=" + SMALLER_USER_ID);
     }
 
-//    @Test
+    @Test
     @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsEqualToSomething() throws Exception {
+    void getAllUserCCInfosByclubFamilyCodeIsEqualToSomething() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
-        // Get all the userCCInfoList where clubFamilyId equals to DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.equals=" + DEFAULT_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode equals to DEFAULT_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldBeFound("clubFamilyCode.equals=" + DEFAULT_CLUB_FAMILY_CODE);
 
-        // Get all the userCCInfoList where clubFamilyId equals to UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.equals=" + UPDATED_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode equals to UPDATED_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldNotBeFound("clubFamilyCode.equals=" + UPDATED_CLUB_FAMILY_CODE);
     }
 
-//    @Test
+    @Test
     @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsNotEqualToSomething() throws Exception {
+    void getAllUserCCInfosByclubFamilyCodeIsNotEqualToSomething() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
-        // Get all the userCCInfoList where clubFamilyId not equals to DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.notEquals=" + DEFAULT_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode not equals to DEFAULT_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldNotBeFound("clubFamilyCode.notEquals=" + DEFAULT_CLUB_FAMILY_CODE);
 
-        // Get all the userCCInfoList where clubFamilyId not equals to UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.notEquals=" + UPDATED_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode not equals to UPDATED_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldBeFound("clubFamilyCode.notEquals=" + UPDATED_CLUB_FAMILY_CODE);
     }
 
-//    @Test
+    @Test
     @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsInShouldWork() throws Exception {
+    void getAllUserCCInfosByclubFamilyCodeIsInShouldWork() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
-        // Get all the userCCInfoList where clubFamilyId in DEFAULT_CLUB_FAMILY_ID or UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.in=" + DEFAULT_CLUB_FAMILY_CODE + "," + UPDATED_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode in DEFAULT_CLUB_FAMILY_ID or UPDATED_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldBeFound("clubFamilyCode.in=" + DEFAULT_CLUB_FAMILY_CODE + "," + UPDATED_CLUB_FAMILY_CODE);
 
-        // Get all the userCCInfoList where clubFamilyId equals to UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.in=" + UPDATED_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode equals to UPDATED_CLUB_FAMILY_ID
+        defaultUserCCInfoShouldNotBeFound("clubFamilyCode.in=" + UPDATED_CLUB_FAMILY_CODE);
     }
 
-//    @Test
+    @Test
     @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsNullOrNotNull() throws Exception {
+    void getAllUserCCInfosByclubFamilyCodeIsNullOrNotNull() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
-        // Get all the userCCInfoList where clubFamilyId is not null
-        defaultUserCCInfoShouldBeFound("clubFamilyId.specified=true");
+        // Get all the userCCInfoList where clubFamilyCode is not null
+        defaultUserCCInfoShouldBeFound("clubFamilyCode.specified=true");
 
-        // Get all the userCCInfoList where clubFamilyId is null
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.specified=false");
-    }
-
-//    @Test
-    @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsGreaterThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        userCCInfoRepository.saveAndFlush(userCCInfo);
-
-        // Get all the userCCInfoList where clubFamilyId is greater than or equal to DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.greaterThanOrEqual=" + DEFAULT_CLUB_FAMILY_CODE);
-
-        // Get all the userCCInfoList where clubFamilyId is greater than or equal to UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.greaterThanOrEqual=" + UPDATED_CLUB_FAMILY_CODE);
-    }
-
-//    @Test
-    @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsLessThanOrEqualToSomething() throws Exception {
-        // Initialize the database
-        userCCInfoRepository.saveAndFlush(userCCInfo);
-
-        // Get all the userCCInfoList where clubFamilyId is less than or equal to DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.lessThanOrEqual=" + DEFAULT_CLUB_FAMILY_CODE);
-
-        // Get all the userCCInfoList where clubFamilyId is less than or equal to SMALLER_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.lessThanOrEqual=" + SMALLER_CLUB_FAMILY_CODE);
-    }
-
-//    @Test
-    @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsLessThanSomething() throws Exception {
-        // Initialize the database
-        userCCInfoRepository.saveAndFlush(userCCInfo);
-
-        // Get all the userCCInfoList where clubFamilyId is less than DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.lessThan=" + DEFAULT_CLUB_FAMILY_CODE);
-
-        // Get all the userCCInfoList where clubFamilyId is less than UPDATED_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.lessThan=" + UPDATED_CLUB_FAMILY_CODE);
-    }
-
-//    @Test
-    @Transactional
-    void getAllUserCCInfosByClubFamilyIdIsGreaterThanSomething() throws Exception {
-        // Initialize the database
-        userCCInfoRepository.saveAndFlush(userCCInfo);
-
-        // Get all the userCCInfoList where clubFamilyId is greater than DEFAULT_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldNotBeFound("clubFamilyId.greaterThan=" + DEFAULT_CLUB_FAMILY_CODE);
-
-        // Get all the userCCInfoList where clubFamilyId is greater than SMALLER_CLUB_FAMILY_ID
-        defaultUserCCInfoShouldBeFound("clubFamilyId.greaterThan=" + SMALLER_CLUB_FAMILY_CODE);
+        // Get all the userCCInfoList where clubFamilyCode is null
+        defaultUserCCInfoShouldNotBeFound("clubFamilyCode.specified=false");
     }
 
     @Test
@@ -660,7 +608,7 @@ public class UserCCInfoResourceIT {
             .andExpect(jsonPath("$.id").value(userCCInfo.getId().intValue()))
             .andExpect(jsonPath("$.userId").value(DEFAULT_USER_ID.intValue()))
             .andExpect(jsonPath("$.familyRole").value(DEFAULT_FAMILY_ROLE.toString()))
-            .andExpect(jsonPath("$.yearSession").value(DEFAULT_YEAR_SESSION.toString()));
+            .andExpect(jsonPath("$.yearSession").value(DEFAULT_YEAR_SESSION));
     }
 
     @Test

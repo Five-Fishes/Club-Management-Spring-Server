@@ -1,14 +1,11 @@
 package com.thirdcc.webapp.service.criteria;
 
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
 import java.io.Serializable;
 import java.util.Objects;
 import io.github.jhipster.service.Criteria;
-import io.github.jhipster.service.filter.BooleanFilter;
-import io.github.jhipster.service.filter.DoubleFilter;
 import io.github.jhipster.service.filter.Filter;
-import io.github.jhipster.service.filter.FloatFilter;
-import io.github.jhipster.service.filter.IntegerFilter;
 import io.github.jhipster.service.filter.LongFilter;
 import io.github.jhipster.service.filter.StringFilter;
 
@@ -40,13 +37,30 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
     }
   }
 
+    /**
+     * Class for filtering ClubFamilyCode
+     */
+    public static class ClubFamilyCodeFilter extends Filter<ClubFamilyCode> {
+
+        public ClubFamilyCodeFilter() {}
+
+        public ClubFamilyCodeFilter(ClubFamilyCodeFilter filter) {
+            super(filter);
+        }
+
+        @Override
+        public ClubFamilyCodeFilter copy() {
+            return new ClubFamilyCodeFilter(this);
+        }
+    }
+
   private static final long serialVersionUID = 1L;
 
   private LongFilter id;
 
   private LongFilter userId;
 
-  private LongFilter clubFamilyId;
+  private ClubFamilyCodeFilter clubFamilyCode;
 
   private ClubFamilyRoleFilter familyRole;
 
@@ -57,7 +71,7 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
   public UserCCInfoCriteria(UserCCInfoCriteria other) {
     this.id = other.id == null ? null : other.id.copy();
     this.userId = other.userId == null ? null : other.userId.copy();
-    this.clubFamilyId = other.clubFamilyId == null ? null : other.clubFamilyId.copy();
+    this.clubFamilyCode = other.clubFamilyCode == null ? null : other.clubFamilyCode.copy();
     this.familyRole = other.familyRole == null ? null : other.familyRole.copy();
     this.yearSession = other.yearSession == null ? null : other.yearSession.copy();
   }
@@ -97,19 +111,19 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
     this.userId = userId;
   }
 
-  public LongFilter getClubFamilyId() {
-    return clubFamilyId;
+  public ClubFamilyCodeFilter getClubFamilyCode() {
+    return clubFamilyCode;
   }
 
-  public LongFilter clubFamilyId() {
-    if (clubFamilyId == null) {
-      clubFamilyId = new LongFilter();
+  public ClubFamilyCodeFilter clubFamilyId() {
+    if (clubFamilyCode == null) {
+      clubFamilyCode = new ClubFamilyCodeFilter();
     }
-    return clubFamilyId;
+    return clubFamilyCode;
   }
 
-  public void setClubFamilyId(LongFilter clubFamilyId) {
-    this.clubFamilyId = clubFamilyId;
+  public void setClubFamilyCode(ClubFamilyCodeFilter clubFamilyCode) {
+    this.clubFamilyCode = clubFamilyCode;
   }
 
   public ClubFamilyRoleFilter getFamilyRole() {
@@ -154,7 +168,7 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
     return (
       Objects.equals(id, that.id) &&
       Objects.equals(userId, that.userId) &&
-      Objects.equals(clubFamilyId, that.clubFamilyId) &&
+      Objects.equals(clubFamilyCode, that.clubFamilyCode) &&
       Objects.equals(familyRole, that.familyRole) &&
       Objects.equals(yearSession, that.yearSession)
     );
@@ -162,7 +176,7 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, userId, clubFamilyId, familyRole, yearSession);
+    return Objects.hash(id, userId, clubFamilyCode, familyRole, yearSession);
   }
 
   // prettier-ignore
@@ -171,7 +185,7 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
         return "UserCCInfoCriteria{" +
             (id != null ? "id=" + id + ", " : "") +
             (userId != null ? "userId=" + userId + ", " : "") +
-            (clubFamilyId != null ? "clubFamilyId=" + clubFamilyId + ", " : "") +
+            (clubFamilyCode != null ? "clubFamilyId=" + clubFamilyCode + ", " : "") +
             (familyRole != null ? "familyRole=" + familyRole + ", " : "") +
             (yearSession != null ? "yearSession=" + yearSession + ", " : "") +
             "}";
