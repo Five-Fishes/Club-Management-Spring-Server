@@ -1,4 +1,5 @@
 package com.thirdcc.webapp.domain;
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -25,8 +26,9 @@ public class UserCCInfo implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "club_family_id")
-    private Long clubFamilyId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "club_family_code")
+    private ClubFamilyCode clubFamilyCode;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "family_role")
@@ -57,17 +59,17 @@ public class UserCCInfo implements Serializable {
         this.userId = userId;
     }
 
-    public Long getClubFamilyId() {
-        return clubFamilyId;
+    public ClubFamilyCode getClubFamilyCode() {
+        return clubFamilyCode;
     }
 
-    public UserCCInfo clubFamilyId(Long clubFamilyId) {
-        this.clubFamilyId = clubFamilyId;
+    public UserCCInfo clubFamilyCode(ClubFamilyCode clubFamilyCode) {
+        this.clubFamilyCode = clubFamilyCode;
         return this;
     }
 
-    public void setClubFamilyId(Long clubFamilyId) {
-        this.clubFamilyId = clubFamilyId;
+    public void setClubFamilyCode(ClubFamilyCode clubFamilyCode) {
+        this.clubFamilyCode = clubFamilyCode;
     }
 
     public ClubFamilyRole getFamilyRole() {
@@ -118,7 +120,7 @@ public class UserCCInfo implements Serializable {
         return "UserCCInfo{" +
             "id=" + getId() +
             ", userId=" + getUserId() +
-            ", clubFamilyId=" + getClubFamilyId() +
+            ", clubFamilyCode=" + getClubFamilyCode() +
             ", familyRole='" + getFamilyRole() + "'" +
             ", yearSession='" + getYearSession() + "'" +
             "}";
