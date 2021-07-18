@@ -3,6 +3,7 @@ package com.thirdcc.webapp.web.rest;
 import com.thirdcc.webapp.ClubmanagementApp;
 import com.thirdcc.webapp.annotations.authorization.WithCurrentCCAdministrator;
 import com.thirdcc.webapp.annotations.authorization.WithEventCrew;
+import com.thirdcc.webapp.annotations.authorization.WithEventHead;
 import com.thirdcc.webapp.annotations.authorization.WithNormalUser;
 import com.thirdcc.webapp.annotations.init.InitYearSession;
 import com.thirdcc.webapp.domain.*;
@@ -87,7 +88,7 @@ public class TransactionResourceIT {
     private static final String DEFAULT_IMAGE_LINK = "DEFAULT_IMAGE_LINK";
     private static final String UPDATED_IMAGE_LINK = "UPDATED_IMAGE_LINK";
 
-    private static final TransactionStatus DEFAULT_TRANSACTION_STATUS = TransactionStatus.COMPLETED;
+    private static final TransactionStatus DEFAULT_TRANSACTION_STATUS = TransactionStatus.PENDING;
     private static final TransactionStatus UPDATED_TRANSACTION_STATUS = TransactionStatus.COMPLETED;
 
     private static final String DEFAULT_CLOSED_BY = USERNAME;
@@ -1014,7 +1015,114 @@ public class TransactionResourceIT {
         assertThat(updatedTransaction.getTransactionStatus()).isEqualTo(UPDATED_TRANSACTION_STATUS);
     }
 
+    @Test
+    @WithCurrentCCAdministrator
+    public void updateTransactionStatus_UserWithRoleAdmin() throws Exception {
+        // Initialize the database
+        initTransactionDB();
 
+        int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
+
+        restTransactionMockMvc.perform(put("/api/transactions/{id}/status/{transactionStatus}", transaction.getId(), UPDATED_TRANSACTION_STATUS)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+
+        // Validate the Checklist in the database
+        List<Transaction> transactionList = transactionRepository.findAll();
+        assertThat(transactionList).hasSize(databaseSizeBeforeUpdate);
+        // Validate the saved Transaction
+        Transaction testTransaction = transactionList.get(transactionList.size() - 1);
+        assertThat(testTransaction.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testTransaction.getEventId()).isEqualTo(DEFAULT_EVENT_ID);
+        assertThat(testTransaction.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
+        assertThat(testTransaction.getTransactionAmount()).isEqualTo(DEFAULT_AMOUNT.setScale(2, RoundingMode.HALF_UP));
+        assertThat(testTransaction.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testTransaction.getTransactionStatus()).isEqualTo(UPDATED_TRANSACTION_STATUS);
+        assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
+        assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
+    }
+    
+    @Test
+    @WithEventHead
+    public void updateTransactionStatus_UserIsNotAdmin_ShouldThrow403IsForbidden() throws Exception {
+        // Initialize the database
+        initTransactionDB();
+
+        int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
+
+        restTransactionMockMvc.perform(put("/api/transactions/{id}/status/{transactionStatus}", transaction.getId(), UPDATED_TRANSACTION_STATUS)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isForbidden());
+
+        // Validate the Checklist in the database
+        List<Transaction> transactionList = transactionRepository.findAll();
+        assertThat(transactionList).hasSize(databaseSizeBeforeUpdate);
+        // Validate the saved Transaction
+        Transaction testTransaction = transactionList.get(transactionList.size() - 1);
+        assertThat(testTransaction.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testTransaction.getEventId()).isEqualTo(DEFAULT_EVENT_ID);
+        assertThat(testTransaction.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
+        assertThat(testTransaction.getTransactionAmount()).isEqualTo(DEFAULT_AMOUNT.setScale(2, RoundingMode.HALF_UP));
+        assertThat(testTransaction.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testTransaction.getTransactionStatus()).isEqualTo(DEFAULT_TRANSACTION_STATUS);
+        assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
+        assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
+    }
+    
+    @Test
+    @WithCurrentCCAdministrator
+    public void updateTransactionStatus_TransactionIsNotExists_ShouldThrow400BadRequest() throws Exception {
+        // Initialize the database
+        initTransactionDB();
+
+        int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
+
+        restTransactionMockMvc.perform(put("/api/transactions/{id}/status/{transactionStatus}", Long.MAX_VALUE, UPDATED_TRANSACTION_STATUS)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isBadRequest());
+
+        // Validate the Checklist in the database
+        List<Transaction> transactionList = transactionRepository.findAll();
+        assertThat(transactionList).hasSize(databaseSizeBeforeUpdate);
+        // Validate the saved Transaction
+        Transaction testTransaction = transactionList.get(transactionList.size() - 1);
+        assertThat(testTransaction.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testTransaction.getEventId()).isEqualTo(DEFAULT_EVENT_ID);
+        assertThat(testTransaction.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
+        assertThat(testTransaction.getTransactionAmount()).isEqualTo(DEFAULT_AMOUNT.setScale(2, RoundingMode.HALF_UP));
+        assertThat(testTransaction.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testTransaction.getTransactionStatus()).isEqualTo(DEFAULT_TRANSACTION_STATUS);
+        assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
+        assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
+    }
+    
+    @Test
+    @WithCurrentCCAdministrator
+    public void updateTransactionStatus_TransactionIsNotPending_ShouldThrow400BadRequest() throws Exception {
+        // Initialize the database
+        transaction.setTransactionStatus(UPDATED_TRANSACTION_STATUS);
+        initTransactionDB();
+
+        int databaseSizeBeforeUpdate = transactionRepository.findAll().size();
+
+        restTransactionMockMvc.perform(put("/api/transactions/{id}/status/{transactionStatus}", Long.MAX_VALUE, UPDATED_TRANSACTION_STATUS)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isBadRequest());
+
+        // Validate the Checklist in the database
+        List<Transaction> transactionList = transactionRepository.findAll();
+        assertThat(transactionList).hasSize(databaseSizeBeforeUpdate);
+        // Validate the saved Transaction
+        Transaction testTransaction = transactionList.get(transactionList.size() - 1);
+        assertThat(testTransaction.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testTransaction.getEventId()).isEqualTo(DEFAULT_EVENT_ID);
+        assertThat(testTransaction.getTransactionType()).isEqualTo(DEFAULT_TRANSACTION_TYPE);
+        assertThat(testTransaction.getTransactionAmount()).isEqualTo(DEFAULT_AMOUNT.setScale(2, RoundingMode.HALF_UP));
+        assertThat(testTransaction.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
+        assertThat(testTransaction.getTransactionStatus()).isEqualTo(UPDATED_TRANSACTION_STATUS);
+        assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
+        assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
+    }
 
     @Test
     @WithEventCrew
