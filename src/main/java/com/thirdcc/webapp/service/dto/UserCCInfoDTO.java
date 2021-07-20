@@ -14,10 +14,10 @@ public class UserCCInfoDTO implements Serializable {
 
     public UserCCInfoDTO() { }
 
-    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyId, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan) {
+    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan) {
         this.id = id;
         this.userId = userId;
-        this.clubFamilyId = clubFamilyId;
+        this.clubFamilyCode = clubFamilyCode;
         this.familyRole = familyRole;
         this.yearSession = yearSession;
         this.fishLevel = fishLevel;
@@ -25,10 +25,10 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilySlogan = clubFamilySlogan;
     }
 
-    public UserCCInfoDTO(Long id, Long userId, Long clubFamilyId, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, User user) {
+    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, User user) {
         this.id = id;
         this.userId = userId;
-        this.clubFamilyId = clubFamilyId;
+        this.clubFamilyCode = clubFamilyCode;
         this.familyRole = familyRole;
         this.yearSession = yearSession;
         this.fishLevel = fishLevel;
@@ -41,7 +41,7 @@ public class UserCCInfoDTO implements Serializable {
 
     private Long userId;
 
-    private ClubFamilyCode clubFamilyId;
+    private ClubFamilyCode clubFamilyCode;
 
     private ClubFamilyRole familyRole;
 
@@ -71,12 +71,12 @@ public class UserCCInfoDTO implements Serializable {
         this.userId = userId;
     }
 
-    public ClubFamilyCode getClubFamilyId() {
-        return clubFamilyId;
+    public ClubFamilyCode getClubFamilyCode() {
+        return clubFamilyCode;
     }
 
-    public void setClubFamilyId(ClubFamilyCode clubFamilyId) {
-        this.clubFamilyId = clubFamilyId;
+    public void setClubFamilyCode(ClubFamilyCode clubFamilyCode) {
+        this.clubFamilyCode = clubFamilyCode;
     }
 
     public ClubFamilyRole getFamilyRole() {
@@ -121,7 +121,7 @@ public class UserCCInfoDTO implements Serializable {
         return "UserCCInfoDTO{" +
             "id=" + getId() +
             ", userId=" + getUserId() +
-            ", clubFamilyId=" + getClubFamilyId() +
+            ", clubFamilyCode=" + getClubFamilyCode() +
             ", familyRole='" + getFamilyRole() + "'" +
             ", yearSession='" + getYearSession() + "'" +
             ", clubFamilyName='" + getClubFamilyName() + "'" +
@@ -171,7 +171,7 @@ public class UserCCInfoDTO implements Serializable {
 
         private Long id;
         private Long userId;
-        private ClubFamilyCode clubFamilyId;
+        private ClubFamilyCode clubFamilyCode;
         private ClubFamilyRole familyRole;
         private String yearSession;
         private String fishLevel;
@@ -189,8 +189,8 @@ public class UserCCInfoDTO implements Serializable {
             return this;
         }
 
-        public Builder clubFamilyId(ClubFamilyCode clubFamilyId) {
-            this.clubFamilyId = clubFamilyId;
+        public Builder clubFamilyCode(ClubFamilyCode clubFamilyCode) {
+            this.clubFamilyCode = clubFamilyCode;
             return this;
         }
 
@@ -225,7 +225,7 @@ public class UserCCInfoDTO implements Serializable {
         }
 
         public UserCCInfoDTO build() {
-            return new UserCCInfoDTO(id, userId, clubFamilyId, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan);
+            return new UserCCInfoDTO(id, userId, clubFamilyCode, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan);
         }
     }
 }
