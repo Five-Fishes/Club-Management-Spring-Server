@@ -3,11 +3,13 @@ package com.thirdcc.webapp.service;
 import com.thirdcc.webapp.domain.*; // for static metamodels
 import com.thirdcc.webapp.domain.Transaction;
 import com.thirdcc.webapp.repository.TransactionRepository;
+import com.thirdcc.webapp.repository.UserRepository;
 import com.thirdcc.webapp.service.criteria.TransactionCriteria;
 import com.thirdcc.webapp.service.dto.TransactionDTO;
 import com.thirdcc.webapp.service.mapper.TransactionMapper;
 
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.criteria.JoinType;
 
 import org.slf4j.Logger;
@@ -33,11 +35,14 @@ public class TransactionQueryService extends QueryService<Transaction> {
 
     private final TransactionRepository transactionRepository;
 
+    private final UserRepository userRepository;
+
     private final TransactionMapper transactionMapper;
 
-    public TransactionQueryService(TransactionRepository transactionRepository, TransactionMapper transactionMapper) {
+    public TransactionQueryService(TransactionRepository transactionRepository, TransactionMapper transactionMapper, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.transactionMapper = transactionMapper;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -64,7 +69,7 @@ public class TransactionQueryService extends QueryService<Transaction> {
     public Page<TransactionDTO> findByCriteria(TransactionCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
         final Specification<Transaction> specification = createSpecification(criteria);
-        return transactionRepository.findAll(specification, page).map(transactionMapper::toDto);
+        return transactionRepository.findAll(specification, page).map(transactionMapper::toDto).map(this::mapUserName);
     }
 
     /**
@@ -133,5 +138,19 @@ public class TransactionQueryService extends QueryService<Transaction> {
             }
         }
         return specification;
+    }
+
+    /**
+     * Assign user name to the transactionDTO.
+     *
+     * @param transactionDTO to add on the user name prop.
+     * */
+    private TransactionDTO mapUserName(TransactionDTO transactionDTO) {
+        Optional<User> dbUser = userRepository.findOneByLogin(transactionDTO.getCreatedBy());
+        if(dbUser.isPresent()){
+            User user = dbUser.get();
+            transactionDTO.setCreatedBy(user.getFirstName() + " " + user.getLastName());
+        }
+        return transactionDTO;
     }
 }
