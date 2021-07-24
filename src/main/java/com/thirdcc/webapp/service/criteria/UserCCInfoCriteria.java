@@ -66,6 +66,14 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
 
   private StringFilter yearSession;
 
+  private StringFilter intakeYearSession;
+
+  private StringFilter userFirstName;
+
+  private StringFilter userLastName;
+
+  private LongFilter courseProgramId;
+
   public UserCCInfoCriteria() {}
 
   public UserCCInfoCriteria(UserCCInfoCriteria other) {
@@ -74,6 +82,10 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
     this.clubFamilyCode = other.clubFamilyCode == null ? null : other.clubFamilyCode.copy();
     this.familyRole = other.familyRole == null ? null : other.familyRole.copy();
     this.yearSession = other.yearSession == null ? null : other.yearSession.copy();
+    this.intakeYearSession = other.intakeYearSession == null ? null : other.intakeYearSession.copy();
+    this.userFirstName = other.userFirstName == null ? null : other.userFirstName.copy();
+    this.userLastName = other.userLastName == null ? null : other.userLastName.copy();
+    this.courseProgramId = other.courseProgramId == null ? null : other.courseProgramId.copy();
   }
 
   @Override
@@ -155,6 +167,38 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
   public void setYearSession(StringFilter yearSession) {
     this.yearSession = yearSession;
   }
+
+    public StringFilter getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(StringFilter userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public StringFilter getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(StringFilter userLastName) {
+        this.userLastName = userLastName;
+    }
+
+    public StringFilter getIntakeYearSession() {
+        return intakeYearSession;
+    }
+
+    public void setIntakeYearSession(StringFilter intakeYearSession) {
+        this.intakeYearSession = intakeYearSession;
+    }
+
+    public LongFilter getCourseProgramId() {
+        return courseProgramId;
+    }
+
+    public void setCourseProgramId(LongFilter courseProgramId) {
+        this.courseProgramId = courseProgramId;
+    }
 
   @Override
   public boolean equals(Object o) {

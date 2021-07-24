@@ -12,7 +12,6 @@ import org.mapstruct.*;
 public interface UserCCInfoMapper extends EntityMapper<UserCCInfoDTO, UserCCInfo> {
 
 
-
     default UserCCInfo fromId(Long id) {
         if (id == null) {
             return null;

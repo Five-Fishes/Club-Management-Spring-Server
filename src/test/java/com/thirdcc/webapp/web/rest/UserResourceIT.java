@@ -146,7 +146,7 @@ public class UserResourceIT {
      * This is a static method, as tests for other entities might also need it,
      * if they test an entity which has a required relationship to the User entity.
      */
-    public static User createUserEntity(EntityManager em) {
+    public static User createUserEntity() {
         User user = new User();
         user.setLogin(DEFAULT_LOGIN + RandomStringUtils.randomAlphabetic(5));
         user.setPassword(RandomStringUtils.random(60));
@@ -192,7 +192,7 @@ public class UserResourceIT {
 
     @BeforeEach
     public void initTest() {
-        user = createUserEntity(em);
+        user = createUserEntity();
         user.setLogin(DEFAULT_LOGIN);
         user.setEmail(DEFAULT_EMAIL);
     }

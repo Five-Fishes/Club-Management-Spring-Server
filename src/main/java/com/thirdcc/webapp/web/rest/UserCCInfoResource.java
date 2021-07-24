@@ -1,6 +1,7 @@
 package com.thirdcc.webapp.web.rest;
 
 import com.thirdcc.webapp.domain.User;
+import com.thirdcc.webapp.domain.UserCCInfo;
 import com.thirdcc.webapp.exception.BadRequestException;
 import com.thirdcc.webapp.security.SecurityUtils;
 import com.thirdcc.webapp.service.UserCCInfoQueryService;
@@ -12,12 +13,17 @@ import com.thirdcc.webapp.web.rest.errors.BadRequestAlertException;
 import com.thirdcc.webapp.service.dto.UserCCInfoDTO;
 
 import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -162,5 +168,21 @@ public class UserCCInfoResource {
         log.debug("REST request to delete UserCCInfo : {}", id);
         userCCInfoService.delete(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+    }
+
+    /**
+     * use {@link #getCcMembers(UserCCInfoCriteria, Pageable)}
+     * @param criteria Search Criteria of CC Members List
+     * @param pageable Pagination Info
+     * @return Page of User Full Info: UserCCInfo, User, UserUniInfo
+     */
+    @GetMapping("/cc-members")
+    public ResponseEntity<List<UserCCInfo>> getCcMembers(UserCCInfoCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Members by criteria: {}", criteria);
+        Page<UserCCInfo> page = userCCInfoQueryService.findMembersByCriteria(criteria, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok()
+            .headers(headers)
+            .body(page.getContent());
     }
 }

@@ -7,7 +7,6 @@ import com.thirdcc.webapp.service.criteria.UserCCInfoCriteria;
 import com.thirdcc.webapp.service.dto.UserCCInfoDTO;
 import com.thirdcc.webapp.service.mapper.UserCCInfoMapper;
 import java.util.List;
-import javax.persistence.criteria.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -49,6 +48,18 @@ public class UserCCInfoQueryService extends QueryService<UserCCInfo> {
     final Specification<UserCCInfo> specification = createSpecification(criteria);
     return userCCInfoMapper.toDto(userCCInfoRepository.findAll(specification));
   }
+
+    /**
+     * Return a {@link List} of {@link UserCCInfo} which matches the criteria from the database.
+     * @param criteria The object which holds all the filters, which the entities should match.
+     * @return the matching entities.
+     */
+    @Transactional(readOnly = true)
+    public Page<UserCCInfo> findMembersByCriteria(UserCCInfoCriteria criteria, Pageable page) {
+        log.debug("find by criteria : {}", criteria);
+        final Specification<UserCCInfo> specification = createSpecification(criteria);
+        return userCCInfoRepository.findAll(specification, page);
+    }
 
   /**
    * Return a {@link Page} of {@link UserCCInfoDTO} which matches the criteria from the database.
@@ -97,6 +108,18 @@ public class UserCCInfoQueryService extends QueryService<UserCCInfo> {
       }
       if (criteria.getYearSession() != null) {
         specification = specification.and(buildStringSpecification(criteria.getYearSession(), UserCCInfo_.yearSession));
+      }
+      if (criteria.getIntakeYearSession() != null) {
+        specification = specification.and(buildReferringEntitySpecification(criteria.getIntakeYearSession(), UserCCInfo_.userUniInfo, UserUniInfo_.yearSession));
+      }
+      if (criteria.getUserFirstName() != null) {
+        specification = specification.and(buildReferringEntitySpecification(criteria.getUserFirstName(), UserCCInfo_.user, User_.firstName));
+      }
+      if (criteria.getUserLastName() != null) {
+        specification = specification.and(buildReferringEntitySpecification(criteria.getUserLastName(), UserCCInfo_.user, User_.lastName));
+      }
+      if (criteria.getCourseProgramId() != null) {
+        specification = specification.and(buildReferringEntitySpecification(criteria.getCourseProgramId(), UserCCInfo_.userUniInfo, UserUniInfo_.courseProgramId));
       }
     }
     return specification;

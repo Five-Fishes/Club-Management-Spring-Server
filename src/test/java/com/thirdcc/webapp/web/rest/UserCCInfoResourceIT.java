@@ -19,6 +19,7 @@ import com.thirdcc.webapp.service.dto.UserCCInfoDTO;
 import com.thirdcc.webapp.service.mapper.UserCCInfoMapper;
 
 import com.thirdcc.webapp.utils.YearSessionUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -28,6 +29,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -36,10 +39,9 @@ import java.time.Instant;
 import java.util.List;
 
 import static com.thirdcc.webapp.utils.FishLevelUtils.*;
+import static com.thirdcc.webapp.web.rest.UserResourceIT.createUserEntity;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,11 +50,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = ClubmanagementApp.class)
 @AutoConfigureMockMvc
-@WithMockUser(value = "user")
+@WithMockUser()
 @InitYearSession
 public class UserCCInfoResourceIT {
 
     private static final String ENTITY_API_URL = "/api/user-cc-infos";
+    private static final String CC_MEMBER_API_URL = "/api/cc-members";
 
     private static final Long DEFAULT_USER_ID = 1L;
     private static final Long SMALLER_USER_ID = DEFAULT_USER_ID - 1L;
@@ -69,7 +72,9 @@ public class UserCCInfoResourceIT {
     private static final String UPDATED_YEAR_SESSION = "2019/2020";
 
     private static final String DEFAULT_UNI_INTAKE_YEAR_SESSION = "2020/2021";
+    private static final String UPDATED_UNI_INTAKE_YEAR_SESSION = "2019/2020";
     private static final Long DEFAULT_COURSE_PROGRAM_ID = 1L;
+    private static final Long UPDATED_COURSE_PROGRAM_ID = 2L;
     private static final int DEFAULT_INTAKE_SEMESTER = 1;
     private static final String DEFAULT_STAY_IN = "KK3 UM";
     private static final UserUniStatus DEFAULT_UNI_INFO_STATUS = UserUniStatus.STUDYING;
@@ -95,6 +100,12 @@ public class UserCCInfoResourceIT {
     private static final String DEFAULT_ADMINISTRATOR_YEAR_SESSION = "2020/2021";
     private static final AdministratorStatus DEFAULT_ADMINISTRATOR_STATUS = AdministratorStatus.ACTIVE;
     private static final AdministratorRole DEFAULT_ADMINISTRATOR_ROLE = AdministratorRole.CC_HEAD;
+
+    // User DEFAULT value
+    private static final String DEFAULT_USER_FIRST_NAME = "Default First Name";
+    private static final String UPDATED_USER_FIRST_NAME = "Updated First Name";
+    private static final String DEFAULT_USER_LAST_NAME = "Default Last Name";
+    private static final String UPDATED_USER_LAST_NAME = "Updated Last Name";
 
     @Autowired
     private UserCCInfoRepository userCCInfoRepository;
@@ -205,6 +216,13 @@ public class UserCCInfoResourceIT {
     @BeforeEach
     public void initTest() {
         userCCInfo = createEntity();
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        userRepository.deleteAll();
+        userUniInfoRepository.deleteAll();
+        userCCInfoRepository.deleteAll();
     }
 
     @Test
@@ -952,6 +970,300 @@ public class UserCCInfoResourceIT {
             .andExpect(jsonPath("$").value(hasSize(0)));
     }
 
+    /**
+     * Executes the search of cc members, and checks that the default entity is returned.
+     */
+    private void getCcMembersShouldBeFound(String filter) throws Exception {
+        MvcResult res = restUserCCInfoMockMvc
+            .perform(get(CC_MEMBER_API_URL + "?" + filter))
+            .andReturn();
+        System.out.println(userUniInfoRepository.findAll());
+        System.out.println(userRepository.findAll());
+        System.out.println(res.getResponse().getContentAsString());
+        restUserCCInfoMockMvc
+            .perform(get(CC_MEMBER_API_URL + "?" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(userCCInfo.getId().intValue())))
+            .andExpect(jsonPath("$.[*].userId").value(hasItem(DEFAULT_USER_ID.intValue())))
+            .andExpect(jsonPath("$.[*].familyRole").value(hasItem(DEFAULT_FAMILY_ROLE.toString())))
+            .andExpect(jsonPath("$.[*].yearSession").value(hasItem(DEFAULT_YEAR_SESSION)));
+            // TODO: Solve userUniInfo is null
+//            .andExpect(jsonPath("$.[*].userUniInfo.courseProgramId").value(hasItem(DEFAULT_COURSE_PROGRAM_ID)))
+//            .andExpect(jsonPath("$.[*].userUniInfo.yearSession").value(hasItem(DEFAULT_UNI_INTAKE_YEAR_SESSION)))
+            // TODO: Solve user is null
+//            .andExpect(jsonPath("$.[*].user.firstName").value(hasItem(DEFAULT_USER_FIRST_NAME)))
+//            .andExpect(jsonPath("$.[*].user.lastName").value(hasItem(DEFAULT_USER_LAST_NAME)));
+    }
+
+    /**
+     * Executes the search Cc Members, and checks that the default entity is not returned.
+     */
+    private void getCcMembersShouldNotBeFound(String filter) throws Exception {
+        restUserCCInfoMockMvc
+            .perform(get(CC_MEMBER_API_URL + "?" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMemberssByCourseProgramIdIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where courseProgramId equals to DEFAULT_COURSE_PROGRAM_ID
+        getCcMembersShouldBeFound("courseProgramId.equals=" + DEFAULT_COURSE_PROGRAM_ID);
+
+        // Get all the userCCInfoList where courseProgramId equals to UPDATED_COURSE_PROGRAM_ID
+        getCcMembersShouldNotBeFound("courseProgramId.equals=" + UPDATED_COURSE_PROGRAM_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByCourseProgramIdIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where courseProgramId not equals to DEFAULT_COURSE_PROGRAM_ID
+        getCcMembersShouldNotBeFound("courseProgramId.notEquals=" + DEFAULT_COURSE_PROGRAM_ID);
+
+        // Get all the userCCInfoList where courseProgramId not equals to UPDATED_COURSE_PROGRAM_ID
+        getCcMembersShouldBeFound("courseProgramId.notEquals=" + UPDATED_COURSE_PROGRAM_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByCourseProgramIdIsInShouldWork() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where courseProgramId in DEFAULT_COURSE_PROGRAM_ID or UPDATED_COURSE_PROGRAM_ID
+        getCcMembersShouldBeFound("courseProgramId.in=" + DEFAULT_COURSE_PROGRAM_ID + "," + UPDATED_COURSE_PROGRAM_ID);
+
+        // Get all the userCCInfoList where courseProgramId equals to UPDATED_USER_ID
+        getCcMembersShouldNotBeFound("courseProgramId.in=" + UPDATED_COURSE_PROGRAM_ID);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByCourseProgramIdIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where courseProgramId is not null
+        getCcMembersShouldBeFound("courseProgramId.specified=true");
+
+        // Get all the userCCInfoList where courseProgramId is null
+        getCcMembersShouldNotBeFound("courseProgramId.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByIntakeYearSessionIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where intakeYearSession equals to DEFAULT_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldBeFound("intakeYearSession.equals=" + DEFAULT_UNI_INTAKE_YEAR_SESSION);
+
+        // Get all the userCCInfoList where intakeYearSession equals to UPDATED_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldNotBeFound("intakeYearSession.equals=" + UPDATED_UNI_INTAKE_YEAR_SESSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByIntakeYearSessionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where intakeYearSession not equals to DEFAULT_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldNotBeFound("intakeYearSession.notEquals=" + DEFAULT_UNI_INTAKE_YEAR_SESSION);
+
+        // Get all the userCCInfoList where intakeYearSession not equals to UPDATE_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldBeFound("intakeYearSession.notEquals=" + UPDATED_UNI_INTAKE_YEAR_SESSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByIntakeYearSessionIsInShouldWork() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where intakeYearSession in DEFAULT_UNI_INTAKE_YEAR_SESSION or UPDATED_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldBeFound("intakeYearSession.in=" + DEFAULT_UNI_INTAKE_YEAR_SESSION + "," + UPDATED_UNI_INTAKE_YEAR_SESSION);
+
+        // Get all the userCCInfoList where intakeYearSession equals to UPDATED_UNI_INTAKE_YEAR_SESSION
+        getCcMembersShouldNotBeFound("intakeYearSession.in=" + UPDATED_UNI_INTAKE_YEAR_SESSION);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByIntakeYearSessionIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where intakeYearSession is not null
+        getCcMembersShouldBeFound("intakeYearSession.specified=true");
+
+        // Get all the userCCInfoList where intakeYearSession is null
+        getCcMembersShouldNotBeFound("intakeYearSession.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserFirstNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userFirstName equals to DEFAULT_USER_FIRST_NAME
+        getCcMembersShouldBeFound("userFirstName.equals=" + DEFAULT_USER_FIRST_NAME);
+
+        // Get all the userCCInfoList where userFirstName equals to UPDATED_USER_FIRST_NAME
+        getCcMembersShouldNotBeFound("userFirstName.equals=" + UPDATED_USER_FIRST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserFirstNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userFirstName not equals to DEFAULT_USER_FIRST_NAME
+        getCcMembersShouldNotBeFound("userFirstName.notEquals=" + DEFAULT_USER_FIRST_NAME);
+
+        // Get all the userCCInfoList where userFirstName not equals to UPDATED_USER_FIRST_NAME
+        getCcMembersShouldBeFound("userFirstName.notEquals=" + UPDATED_USER_FIRST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserFirstNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userFirstName in DEFAULT_USER_FIRST_NAME or UPDATED_USER_FIRST_NAME
+        getCcMembersShouldBeFound("userFirstName.in=" + DEFAULT_USER_FIRST_NAME + "," + UPDATED_USER_FIRST_NAME);
+
+        // Get all the userCCInfoList where userFirstName equals to UPDATE_USER_FIRST_NAME
+        getCcMembersShouldNotBeFound("userFirstName.in=" + UPDATED_USER_FIRST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserFirstNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userFirstName is not null
+        getCcMembersShouldBeFound("userFirstName.specified=true");
+
+        // Get all the userCCInfoList where userFirstName is null
+        getCcMembersShouldNotBeFound("userFirstName.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserLastNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userLastName equals to DEFAULT_USER_LAST_NAME
+        getCcMembersShouldBeFound("userLastName.equals=" + DEFAULT_USER_LAST_NAME);
+
+        // Get all the userCCInfoList where userLastName equals to UPDATED_USER_LAST_NAME
+        getCcMembersShouldNotBeFound("userLastName.equals=" + UPDATED_USER_LAST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserLastNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userLastName not equals to DEFAULT_USER_LAST_NAME
+        getCcMembersShouldNotBeFound("userLastName.notEquals=" + DEFAULT_USER_LAST_NAME);
+
+        // Get all the userCCInfoList where userLastName not equals to UPDATED_USER_LAST_NAME
+        getCcMembersShouldBeFound("userLastName.notEquals=" + UPDATED_USER_LAST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserLastNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userLastName in DEFAULT_USER_LAST_NAME or UPDATED_USER_LAST_NAME
+        getCcMembersShouldBeFound("userLastName.in=" + DEFAULT_USER_LAST_NAME + "," + UPDATED_USER_LAST_NAME);
+
+        // Get all the userCCInfoList where userLastName equals to UPDATED_USER_LAST_NAME
+        getCcMembersShouldNotBeFound("userLastName.in=" + UPDATED_USER_LAST_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllCCMembersByUserLastNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        UserUniInfo userUniInfo = createUserUniInfoEntity();
+        UserUniInfo savedUserUniInfo = userUniInfoRepository.saveAndFlush(userUniInfo);
+        saveUserIfNotExist(DEFAULT_USER_ID);
+
+        // Get all the userCCInfoList where userLastName is not null
+        getCcMembersShouldBeFound("userLastName.specified=true");
+
+        // Get all the userCCInfoList where userLastName is null
+        getCcMembersShouldNotBeFound("userLastName.specified=false");
+    }
+
     @Test
     @Transactional
     public void equalsVerifier() throws Exception {
@@ -995,5 +1307,15 @@ public class UserCCInfoResourceIT {
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneWithAuthoritiesByLogin)
             .orElseThrow(() -> new BadRequestException("Cannot find user"));
+    }
+
+    private User saveUserIfNotExist(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            user = createUserEntity();
+        }
+        user.setFirstName(DEFAULT_USER_FIRST_NAME);
+        user.setLastName(DEFAULT_USER_LAST_NAME);
+        return userRepository.saveAndFlush(user);
     }
 }
