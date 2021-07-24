@@ -145,8 +145,7 @@ public class UserUniInfoServiceImpl implements UserUniInfoService {
         return userUniInfoRepository
             .findOneByUserId(userId)
             .map(userUniInfoMapper::toDto)
-            .map(this::mapUserUniInfoDetails)
-            .map(this::mapClubFamilyInfo);
+            .map(this::mapUserUniInfoDetails);
     }
 
     private UserUniInfoDTO mapUserUniInfoDetails(UserUniInfoDTO userUniInfoDTO) {
@@ -156,18 +155,6 @@ public class UserUniInfoServiceImpl implements UserUniInfoService {
             YearSessionUtils.addYearSessionWithSemester(userUniInfoDTO.getYearSession(), courseProgram.getNumOfSem())
         );
         userUniInfoDTO.setTotalSemester(courseProgram.getNumOfSem());
-        return userUniInfoDTO;
-    }
-
-    private UserUniInfoDTO mapClubFamilyInfo(UserUniInfoDTO userUniInfoDTO) {
-        // TODO: [LU] Update implementation
-//        Optional<ClubFamilyDTO> clubFamilyDTOOptional = clubFamilyService.findClubFamilyByUserId(userUniInfoDTO.getUserId());
-//        clubFamilyDTOOptional.ifPresent(clubFamilyDTO -> {
-//            userUniInfoDTO.setClubFamilyId(clubFamilyDTO.getId());
-//            userUniInfoDTO.setClubFamilyName(clubFamilyDTO.getName());
-//            userUniInfoDTO.setClubFamilySlogan(clubFamilyDTO.getSlogan());
-//            userUniInfoDTO.setClubFamilyDescription(clubFamilyDTO.getDescription());
-//        });
         return userUniInfoDTO;
     }
 

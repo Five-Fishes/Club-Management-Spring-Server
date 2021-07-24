@@ -109,8 +109,7 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
     public Optional<UserCCInfoDTO> findOneByUserId(Long userId) {
         log.debug("Request to get UserCCInfo by userId : {}", userId);
         return userCCInfoRepository.findByUserId(userId)
-            .map(userCCInfoMapper::toDto)
-            .map(this::clubFamilyDetails);
+            .map(userCCInfoMapper::toDto);
     }
 
     @Override
@@ -126,8 +125,8 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
 
     /**
      *
-     * @param userCCInfoDTOList
-     * @param userId
+     * @param userCCInfoDTOList List of user cc info DTO
+     * @param userId ID of user
      * @return List of user CC Info Sorted by Year Session
      */
     private List<UserCCInfoDTO> getFullUserCCInfoList(List<UserCCInfoDTO> userCCInfoDTOList, Long userId) {
@@ -227,15 +226,5 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
     public void delete(Long id) {
         log.debug("Request to delete UserCCInfo : {}", id);
         userCCInfoRepository.deleteById(id);
-    }
-
-    private UserCCInfoDTO clubFamilyDetails(UserCCInfoDTO userCCInfoDTO) {
-        // TODO: [LU] update implementation
-//        clubFamilyService.findOne(userCCInfoDTO.getClubFamilyId())
-//            .ifPresent(clubFamilyDTO -> {
-//                userCCInfoDTO.setClubFamilyName(clubFamilyDTO.getName());
-//                userCCInfoDTO.setClubFamilySlogan(clubFamilyDTO.getSlogan());
-//            });
-        return userCCInfoDTO;
     }
 }
