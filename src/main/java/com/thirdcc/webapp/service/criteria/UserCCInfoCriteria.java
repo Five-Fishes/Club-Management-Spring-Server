@@ -115,7 +115,7 @@ public class UserCCInfoCriteria implements Serializable, Criteria {
     return clubFamilyCode;
   }
 
-  public ClubFamilyCodeFilter clubFamilyId() {
+  public ClubFamilyCodeFilter clubFamilyCode() {
     if (clubFamilyCode == null) {
       clubFamilyCode = new ClubFamilyCodeFilter();
     }
