@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import com.thirdcc.webapp.domain.UserUniInfo;
+import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.Gender;
 import com.thirdcc.webapp.domain.enumeration.UserUniStatus;
 
@@ -45,13 +46,7 @@ public class UserUniInfoDTO implements Serializable {
 
     private Integer totalSemester;
 
-    private Long clubFamilyId;
-
-    private String clubFamilyName;
-
-    private String clubFamilySlogan;
-
-    private String clubFamilyDescription;
+    private ClubFamilyCode clubFamilyCode;
 
     public Long getId() {
         return id;
@@ -190,10 +185,7 @@ public class UserUniInfoDTO implements Serializable {
             ", stayIn='" + stayIn + '\'' +
             ", status=" + status +
             ", imageUrl=" + imageUrl +
-            ", clubFamilyId=" + clubFamilyId +
-            ", clubFamilyName=" + clubFamilyName +
-            ", clubFamilySlogan=" + clubFamilySlogan +
-            ", clubFamilyDescription=" + clubFamilyDescription +
+            ", clubFamilyCode=" + clubFamilyCode +
             '}';
     }
 
@@ -221,35 +213,11 @@ public class UserUniInfoDTO implements Serializable {
         this.email = email;
     }
 
-    public String getClubFamilyName() {
-        return clubFamilyName;
+    public ClubFamilyCode getClubFamilyCode() {
+        return clubFamilyCode;
     }
 
-    public void setClubFamilyName(String clubFamilyName) {
-        this.clubFamilyName = clubFamilyName;
-    }
-
-    public String getClubFamilySlogan() {
-        return clubFamilySlogan;
-    }
-
-    public void setClubFamilySlogan(String clubFamilySlogan) {
-        this.clubFamilySlogan = clubFamilySlogan;
-    }
-
-    public String getClubFamilyDescription() {
-        return clubFamilyDescription;
-    }
-
-    public void setClubFamilyDescription(String clubFamilyDescription) {
-        this.clubFamilyDescription = clubFamilyDescription;
-    }
-
-    public Long getClubFamilyId() {
-        return clubFamilyId;
-    }
-
-    public void setClubFamilyId(Long clubFamilyId) {
-        this.clubFamilyId = clubFamilyId;
+    public void setClubFamilyCode(ClubFamilyCode clubFamilyCode) {
+        this.clubFamilyCode = clubFamilyCode;
     }
 }

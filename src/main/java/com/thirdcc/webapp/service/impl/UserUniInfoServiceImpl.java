@@ -2,10 +2,12 @@ package com.thirdcc.webapp.service.impl;
 
 import com.thirdcc.webapp.domain.CourseProgram;
 import com.thirdcc.webapp.domain.User;
+import com.thirdcc.webapp.domain.UserCCInfo;
 import com.thirdcc.webapp.domain.enumeration.UserUniStatus;
 import com.thirdcc.webapp.exception.BadRequestException;
 import com.thirdcc.webapp.exception.InternalServerErrorException;
 import com.thirdcc.webapp.repository.CourseProgramRepository;
+import com.thirdcc.webapp.repository.UserCCInfoRepository;
 import com.thirdcc.webapp.repository.UserRepository;
 import com.thirdcc.webapp.security.SecurityUtils;
 import com.thirdcc.webapp.service.UserUniInfoService;
@@ -43,13 +45,16 @@ public class UserUniInfoServiceImpl implements UserUniInfoService {
 
     private final CourseProgramRepository courseProgramRepository;
 
+    private UserCCInfoRepository userCCInfoRepository;
+
     private static final UserUniStatus DEFAULT_USER_UNI_STATUS = UserUniStatus.STUDYING;
 
-    public UserUniInfoServiceImpl(UserUniInfoRepository userUniInfoRepository, UserUniInfoMapper userUniInfoMapper, UserRepository userRepository, CourseProgramRepository courseProgramRepository) {
+    public UserUniInfoServiceImpl(UserUniInfoRepository userUniInfoRepository, UserUniInfoMapper userUniInfoMapper, UserRepository userRepository, CourseProgramRepository courseProgramRepository, UserCCInfoRepository userCCInfoRepository) {
         this.userUniInfoRepository = userUniInfoRepository;
         this.userUniInfoMapper = userUniInfoMapper;
         this.userRepository = userRepository;
         this.courseProgramRepository = courseProgramRepository;
+        this.userCCInfoRepository = userCCInfoRepository;
     }
 
     /**
@@ -145,7 +150,8 @@ public class UserUniInfoServiceImpl implements UserUniInfoService {
         return userUniInfoRepository
             .findOneByUserId(userId)
             .map(userUniInfoMapper::toDto)
-            .map(this::mapUserUniInfoDetails);
+            .map(this::mapUserUniInfoDetails)
+            .map(this::mapClubFamilyCode);
     }
 
     private UserUniInfoDTO mapUserUniInfoDetails(UserUniInfoDTO userUniInfoDTO) {
@@ -155,6 +161,12 @@ public class UserUniInfoServiceImpl implements UserUniInfoService {
             YearSessionUtils.addYearSessionWithSemester(userUniInfoDTO.getYearSession(), courseProgram.getNumOfSem())
         );
         userUniInfoDTO.setTotalSemester(courseProgram.getNumOfSem());
+        return userUniInfoDTO;
+    }
+
+    private UserUniInfoDTO mapClubFamilyCode(UserUniInfoDTO userUniInfoDTO) {
+        userCCInfoRepository.findByUserId(userUniInfoDTO.getUserId())
+            .ifPresent(userCCInfo -> userUniInfoDTO.setClubFamilyCode(userCCInfo.getClubFamilyCode()));
         return userUniInfoDTO;
     }
 
