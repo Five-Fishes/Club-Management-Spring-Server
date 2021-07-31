@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -65,6 +66,7 @@ public class UserCCInfoResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/user-cc-infos")
+    @PreAuthorize("@managementTeamSecurityExpression.isCurrentAdministrator()")
     public ResponseEntity<UserCCInfoDTO> createUserCCInfo(@RequestBody UserCCInfoDTO userCCInfoDTO) throws URISyntaxException {
         log.debug("REST request to save UserCCInfo : {}", userCCInfoDTO);
         if (userCCInfoDTO.getId() != null) {
@@ -86,6 +88,7 @@ public class UserCCInfoResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/user-cc-infos")
+    @PreAuthorize("@managementTeamSecurityExpression.isCurrentAdministrator()")
     public ResponseEntity<UserCCInfoDTO> updateUserCCInfo(@RequestBody UserCCInfoDTO userCCInfoDTO) throws URISyntaxException {
         log.debug("REST request to update UserCCInfo : {}", userCCInfoDTO);
         if (userCCInfoDTO.getId() == null) {
@@ -164,6 +167,7 @@ public class UserCCInfoResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/user-cc-infos/{id}")
+    @PreAuthorize("@managementTeamSecurityExpression.isCurrentCCHead()")
     public ResponseEntity<Void> deleteUserCCInfo(@PathVariable Long id) {
         log.debug("REST request to delete UserCCInfo : {}", id);
         userCCInfoService.delete(id);
