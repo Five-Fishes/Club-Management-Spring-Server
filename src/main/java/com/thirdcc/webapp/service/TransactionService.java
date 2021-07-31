@@ -1,5 +1,6 @@
 package com.thirdcc.webapp.service;
 
+import com.thirdcc.webapp.domain.enumeration.TransactionStatus;
 import com.thirdcc.webapp.service.dto.EventBudgetTotalDTO;
 import com.thirdcc.webapp.service.dto.TransactionDTO;
 
@@ -62,4 +63,13 @@ public interface TransactionService {
      * @return the total EventBudgetTotalDTO.
      */
     EventBudgetTotalDTO findTotalTransactionByEventId(Long eventId);
+    
+    /**
+     * Update transaction status by id.
+     *
+     * @param id the id of the entity.
+     * @param transactionStatus the updated transactionStatus of the entity.
+     * @return the persisted transaction.
+     */
+    public TransactionDTO updateTransactionStatus(Long id, TransactionStatus transactionStatus);
 }
