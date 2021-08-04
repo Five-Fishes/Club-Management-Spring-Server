@@ -1,6 +1,8 @@
 package com.thirdcc.webapp.web.rest;
 
 import com.thirdcc.webapp.ClubmanagementApp;
+import com.thirdcc.webapp.annotations.authorization.WithCurrentCCAdministrator;
+import com.thirdcc.webapp.annotations.authorization.WithCurrentCCHead;
 import com.thirdcc.webapp.annotations.init.InitYearSession;
 import com.thirdcc.webapp.domain.User;
 import com.thirdcc.webapp.domain.UserCCInfo;
@@ -50,7 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest(classes = ClubmanagementApp.class)
 @AutoConfigureMockMvc
-@WithMockUser()
+@WithMockUser
 @InitYearSession
 public class UserCCInfoResourceIT {
 
@@ -227,7 +229,8 @@ public class UserCCInfoResourceIT {
 
     @Test
     @Transactional
-    public void createUserCCInfo() throws Exception {
+    @WithCurrentCCAdministrator
+    public void createUserCCInfo_withAdmin_should201() throws Exception {
         int databaseSizeBeforeCreate = userCCInfoRepository.findAll().size();
 
         // Create the UserCCInfo
@@ -242,13 +245,25 @@ public class UserCCInfoResourceIT {
         assertThat(userCCInfoList).hasSize(databaseSizeBeforeCreate + 1);
         UserCCInfo testUserCCInfo = userCCInfoList.get(userCCInfoList.size() - 1);
         assertThat(testUserCCInfo.getUserId()).isEqualTo(DEFAULT_USER_ID);
-//        assertThat(testUserCCInfo.getClubFamilyCode()).isEqualTo(DEFAULT_CLUB_FAMILY_CODE);
+        assertThat(testUserCCInfo.getClubFamilyCode()).isEqualTo(DEFAULT_CLUB_FAMILY_CODE);
         assertThat(testUserCCInfo.getFamilyRole()).isEqualTo(DEFAULT_FAMILY_ROLE);
         assertThat(testUserCCInfo.getYearSession()).isEqualTo(DEFAULT_YEAR_SESSION);
     }
 
     @Test
     @Transactional
+    public void createUserCCInfo_withUser_should403() throws Exception {
+        // Create the UserCCInfo
+        UserCCInfoDTO userCCInfoDTO = userCCInfoMapper.toDto(userCCInfo);
+        restUserCCInfoMockMvc.perform(post("/api/user-cc-infos")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userCCInfoDTO)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithCurrentCCAdministrator
     public void createUserCCInfoWithExistingId() throws Exception {
         int databaseSizeBeforeCreate = userCCInfoRepository.findAll().size();
 
@@ -639,7 +654,8 @@ public class UserCCInfoResourceIT {
 
     @Test
     @Transactional
-    public void updateUserCCInfo() throws Exception {
+    @WithCurrentCCAdministrator
+    public void updateUserCCInfo_withCurrentAdmin_should200() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
@@ -666,14 +682,37 @@ public class UserCCInfoResourceIT {
         assertThat(userCCInfoList).hasSize(databaseSizeBeforeUpdate);
         UserCCInfo testUserCCInfo = userCCInfoList.get(userCCInfoList.size() - 1);
         assertThat(testUserCCInfo.getUserId()).isEqualTo(UPDATED_USER_ID);
-//        assertThat(testUserCCInfo.getClubFamilyCode()).isEqualTo(UPDATED_CLUB_FAMILY_CODE);
+        assertThat(testUserCCInfo.getClubFamilyCode()).isEqualTo(UPDATED_CLUB_FAMILY_CODE);
         assertThat(testUserCCInfo.getFamilyRole()).isEqualTo(UPDATED_FAMILY_ROLE);
         assertThat(testUserCCInfo.getYearSession()).isEqualTo(UPDATED_YEAR_SESSION);
     }
 
     @Test
     @Transactional
-    public void updateNonExistingUserCCInfo() throws Exception {
+    public void updateUserCCInfo_withUser_should403() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+        // Update the userCCInfo
+        UserCCInfo updatedUserCCInfo = userCCInfoRepository.findById(userCCInfo.getId()).get();
+        // Disconnect from session so that the updates on updatedUserCCInfo are not directly saved in db
+        em.detach(updatedUserCCInfo);
+        updatedUserCCInfo
+            .userId(UPDATED_USER_ID)
+            .clubFamilyCode(UPDATED_CLUB_FAMILY_CODE)
+            .familyRole(UPDATED_FAMILY_ROLE)
+            .yearSession(UPDATED_YEAR_SESSION);
+        UserCCInfoDTO userCCInfoDTO = userCCInfoMapper.toDto(updatedUserCCInfo);
+
+        restUserCCInfoMockMvc.perform(put("/api/user-cc-infos")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userCCInfoDTO)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithCurrentCCAdministrator
+    public void updateNonExistingUserCCInfo_withCurrentAdmin_should400() throws Exception {
         int databaseSizeBeforeUpdate = userCCInfoRepository.findAll().size();
 
         // Create the UserCCInfo
@@ -692,7 +731,23 @@ public class UserCCInfoResourceIT {
 
     @Test
     @Transactional
-    public void deleteUserCCInfo() throws Exception {
+    public void updateNonExistingUserCCInfo_withUser_should403() throws Exception {
+        int databaseSizeBeforeUpdate = userCCInfoRepository.findAll().size();
+
+        // Create the UserCCInfo
+        UserCCInfoDTO userCCInfoDTO = userCCInfoMapper.toDto(userCCInfo);
+
+        // If the entity doesn't have an ID, it will throw BadRequestAlertException
+        restUserCCInfoMockMvc.perform(put("/api/user-cc-infos")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(userCCInfoDTO)))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    @WithCurrentCCHead
+    public void deleteUserCCInfo_withCurrentCCHead_should204() throws Exception {
         // Initialize the database
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
@@ -706,6 +761,33 @@ public class UserCCInfoResourceIT {
         // Validate the database contains one less item
         List<UserCCInfo> userCCInfoList = userCCInfoRepository.findAll();
         assertThat(userCCInfoList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    @WithCurrentCCAdministrator
+    public void deleteUserCCInfo_withCurrentAdmin_should403() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+
+        // Delete the userCCInfo
+        restUserCCInfoMockMvc.perform(delete("/api/user-cc-infos/{id}", userCCInfo.getId())
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @Transactional
+    public void deleteUserCCInfo_withUser_should403() throws Exception {
+        // Initialize the database
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+
+        int databaseSizeBeforeDelete = userCCInfoRepository.findAll().size();
+
+        // Delete the userCCInfo
+        restUserCCInfoMockMvc.perform(delete("/api/user-cc-infos/{id}", userCCInfo.getId())
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isForbidden());
     }
 
     @Test
