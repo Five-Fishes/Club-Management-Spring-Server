@@ -164,7 +164,7 @@ public class UserCCInfoDTO implements Serializable {
         return user;
     }
 
-    public void setUserDTO(UserDTO user) {
+    public void setUser(UserDTO user) {
         this.user = user;
     }
 
@@ -221,7 +221,9 @@ public class UserCCInfoDTO implements Serializable {
         }
 
         public Builder setUser(User user) {
-            this.user = new UserMapper().userToUserDTO(user);
+            if(user != null) {
+                this.user = new UserMapper().userToUserDTO(user);
+            }
             return this;
         }
 

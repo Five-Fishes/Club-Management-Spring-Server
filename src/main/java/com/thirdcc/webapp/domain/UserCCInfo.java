@@ -140,6 +140,10 @@ public class UserCCInfo implements Serializable {
         return user;
     }
 
+    public void setUser(User user){
+        this.user = user;
+    }
+
     public void setUser(UserDTO user) {
         this.user = new UserMapper().userDTOToUser(user);
     }
