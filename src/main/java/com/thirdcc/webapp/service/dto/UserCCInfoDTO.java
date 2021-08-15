@@ -155,17 +155,17 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilyName = clubFamilyName;
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
     public UserDTO getUser() {
         return user;
     }
 
     public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
