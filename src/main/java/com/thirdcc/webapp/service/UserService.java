@@ -379,12 +379,18 @@ public class UserService {
      *
      * @return a list of all users without assigned family.
      */
-    public List<UserDTO> getUsersWithoutFamily(Pageable pageable){
+    public List<UserDTO> getUsersWithFamilyCheck(Pageable pageable, boolean hasFamily){
         List<UserDTO> userDTOList = userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new).getContent();
-        return userDTOList
-            .stream()
-            .filter(user -> !userCCInfoRepository.findByUserId(user.getId()).isPresent())
-            .collect(Collectors.toList());
+            return userDTOList
+                .stream()
+                .filter(user -> {
+                    if(hasFamily){
+                        return userCCInfoRepository.findByUserId(user.getId()).isPresent();
+                    } else {
+                        return !userCCInfoRepository.findByUserId(user.getId()).isPresent();
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     public boolean isBasicProfileCompleted(Long userId) {

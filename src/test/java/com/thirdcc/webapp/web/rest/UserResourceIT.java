@@ -2,6 +2,7 @@ package com.thirdcc.webapp.web.rest;
 
 import com.thirdcc.webapp.ClubmanagementApp;
 import com.thirdcc.webapp.annotations.authorization.WithNormalUser;
+import com.thirdcc.webapp.config.Constants;
 import com.thirdcc.webapp.domain.*;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
@@ -18,6 +19,7 @@ import com.thirdcc.webapp.service.mapper.UserMapper;
 import com.thirdcc.webapp.web.rest.errors.ExceptionTranslator;
 import com.thirdcc.webapp.web.rest.vm.ManagedUserVM;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -195,6 +197,14 @@ public class UserResourceIT {
         user = createUserEntity();
         user.setLogin(DEFAULT_LOGIN);
         user.setEmail(DEFAULT_EMAIL);
+    }
+
+    @AfterEach
+    public void cleanUp() {
+        eventRepository.deleteAll();
+        userCCInfoRepository.deleteAll();
+        eventCrewRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -709,6 +719,78 @@ public class UserResourceIT {
             .andExpect(jsonPath("$.[*].email").value(not(hasItem(DEFAULT_EMAIL))))
             .andExpect(jsonPath("$.[*].imageUrl").value(not(hasItem(DEFAULT_IMAGEURL))));
     }
+
+    @Test
+    @Transactional
+    public void getUserWithoutFamily_ShouldReturn200() throws Exception {
+        userRepository.deleteAll();
+       userRepository.saveAndFlush(user);
+
+        // Get all the users
+        restUserMockMvc.perform(get("/api/users?family=false")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].firstName").value(hasItem(user.getFirstName())))
+            .andExpect(jsonPath("$.[*].lastName").value(hasItem(user.getLastName())))
+            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
+            .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
+    }
+
+    @Test
+    @Transactional
+    public void getUserWithoutFamily_ShouldReturnEmptyList() throws Exception {
+        User savedUser = userRepository.saveAndFlush(user);
+        int databaseSizeBeforeUpdate = userRepository.findAll().size();
+
+        UserCCInfo userCCInfo = createUserCCInfoEntity();
+        userCCInfo.setUserId(savedUser.getId());
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+
+        // Get all the users
+        restUserMockMvc.perform(get("/api/users?family=false")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(databaseSizeBeforeUpdate-1)));
+    }
+
+    @Test
+    @Transactional
+    public void getUserWithFamily_ShouldReturn200() throws Exception {
+        userRepository.deleteAll();
+        User savedUser = userRepository.saveAndFlush(user);
+
+        UserCCInfo userCCInfo = createUserCCInfoEntity();
+        userCCInfo.setUserId(savedUser.getId());
+        userCCInfoRepository.saveAndFlush(userCCInfo);
+
+        // Get all the users
+        restUserMockMvc.perform(get("/api/users?family=true")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].login").value(hasItem(user.getLogin())))
+            .andExpect(jsonPath("$.[*].firstName").value(hasItem(DEFAULT_FIRSTNAME)))
+            .andExpect(jsonPath("$.[*].lastName").value(hasItem(DEFAULT_LASTNAME)))
+            .andExpect(jsonPath("$.[*].email").value(hasItem(DEFAULT_EMAIL)))
+            .andExpect(jsonPath("$.[*].imageUrl").value(hasItem(DEFAULT_IMAGEURL)))
+            .andExpect(jsonPath("$.[*].langKey").value(hasItem(DEFAULT_LANGKEY)));
+    }
+
+    @Test
+    @Transactional
+    public void getUserWithFamily_ShouldReturnEmptyList() throws Exception {
+        userRepository.saveAndFlush(user);
+
+        // Get all the users
+        restUserMockMvc.perform(get("/api/users?family=true")
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$", hasSize(0)));
+    }
+
 
     @Test
     @Transactional

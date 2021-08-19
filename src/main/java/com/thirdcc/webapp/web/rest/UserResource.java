@@ -234,13 +234,13 @@ public class UserResource {
 
     /**
      * {@code GET /users/family} : get all users that have no assigned family.
-     *
+     * @param hasFamily checking user's UserCCInfo is exist or not
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of users in body.
      */
-    @GetMapping("/users/family")
-    public ResponseEntity<List<UserDTO>> getUsersWithoutFamily (Pageable pageable){
+    @GetMapping(value="/users", params="family")
+    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (Pageable pageable, @RequestParam("family") Boolean hasFamily){
         log.debug("REST request to get users without assigned family");
-        List<UserDTO> users = userService.getUsersWithoutFamily(pageable);
+        List<UserDTO> users = userService.getUsersWithFamilyCheck(pageable, hasFamily);
         return ResponseEntity.ok().body(users);
     }
 }
