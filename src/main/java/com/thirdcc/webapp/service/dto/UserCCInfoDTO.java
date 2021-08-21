@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.thirdcc.webapp.domain.User;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
+import com.thirdcc.webapp.service.mapper.UserMapper;
 
 /**
  * A DTO for the {@link com.thirdcc.webapp.domain.UserCCInfo} entity.
@@ -25,7 +26,7 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilySlogan = clubFamilySlogan;
     }
 
-    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, User user) {
+    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, UserDTO user) {
         this.id = id;
         this.userId = userId;
         this.clubFamilyCode = clubFamilyCode;
@@ -53,7 +54,7 @@ public class UserCCInfoDTO implements Serializable {
 
     private String clubFamilySlogan;
 
-    private User user;
+    private UserDTO user;
 
     public Long getId() {
         return id;
@@ -154,17 +155,17 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilyName = clubFamilyName;
     }
 
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static class Builder {
@@ -177,7 +178,7 @@ public class UserCCInfoDTO implements Serializable {
         private String fishLevel;
         private String clubFamilyName;
         private String clubFamilySlogan;
-        private User user;
+        private UserDTO user;
 
         public Builder id(Long id) {
             this.id = id;
@@ -220,12 +221,14 @@ public class UserCCInfoDTO implements Serializable {
         }
 
         public Builder setUser(User user) {
-            this.user = user;
+            if(user != null) {
+                this.user = new UserMapper().userToUserDTO(user);
+            }
             return this;
         }
 
         public UserCCInfoDTO build() {
-            return new UserCCInfoDTO(id, userId, clubFamilyCode, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan);
+            return new UserCCInfoDTO(id, userId, clubFamilyCode, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan, user);
         }
     }
 }
