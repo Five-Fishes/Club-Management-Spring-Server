@@ -1,5 +1,6 @@
 package com.thirdcc.webapp.web.rest;
 
+import com.thirdcc.webapp.domain.enumeration.TransactionStatus;
 import com.thirdcc.webapp.security.AuthoritiesConstants;
 import com.thirdcc.webapp.service.TransactionQueryService;
 import com.thirdcc.webapp.service.TransactionService;
@@ -103,6 +104,16 @@ public class TransactionResource {
         Page<TransactionDTO> page = transactionQueryService.findByCriteria(criteria, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+    
+    @PutMapping("/transactions/{id}/status/{transactionStatus}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\") || @managementTeamSecurityExpression.isCurrentAdministrator()")
+    public ResponseEntity<TransactionDTO> updateTransactionStatus(@PathVariable Long id, @PathVariable TransactionStatus transactionStatus) {
+        log.debug("REST request to update transaction: {} with status: {}", id, transactionStatus);
+        TransactionDTO result = transactionService.updateTransactionStatus(id, transactionStatus);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .body(result);
     }
 
     @GetMapping("/transactions/count")
