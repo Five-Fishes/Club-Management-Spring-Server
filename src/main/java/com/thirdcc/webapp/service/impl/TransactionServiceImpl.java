@@ -155,6 +155,27 @@ public class TransactionServiceImpl implements TransactionService {
         log.debug("Request to delete Transaction : {}", id);
         transactionRepository.deleteById(id);
     }
+        
+    /**
+     * Update transaction status by id.
+     *
+     * @param id the id of the entity.
+     * @param transactionStatus the updated transactionStatus of the entity.
+     * @return the persisted transaction.
+     */
+    @Override
+    public TransactionDTO updateTransactionStatus(Long id, TransactionStatus transactionStatus) {
+        log.debug("Request to update Transaction : {} to status: {}", id, transactionStatus);
+        Transaction transaction = transactionRepository.findById(id)
+            .orElseThrow(() -> new BadRequestException("Transaction not exists: " + id));
+        if(!TransactionStatus.PENDING.equals(transaction.getTransactionStatus())){
+            throw new BadRequestException("Transaction is not pending, not allow to update");
+        }
+        transaction.setTransactionStatus(transactionStatus);
+        return transactionMapper.toDto(
+            transactionRepository.save(transaction)
+        );
+    }
 
     @Override
     public Page<TransactionDTO> findAllByEventId(Long eventId, Pageable pageable) {

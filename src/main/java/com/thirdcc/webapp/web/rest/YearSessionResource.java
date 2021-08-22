@@ -7,18 +7,25 @@ import com.thirdcc.webapp.service.criteria.YearSessionCriteria;
 import com.thirdcc.webapp.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
+import io.github.jhipster.web.util.PaginationUtil;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link com.thirdcc.webapp.domain.YearSession}.
@@ -88,6 +95,17 @@ public class YearSessionResource {
         log.debug("REST request to get YearSessions by criteria: {}", criteria);
         List<YearSession> entityList = yearSessionQueryService.findByCriteria(criteria);
         return ResponseEntity.ok().body(entityList);
+    }
+
+    @GetMapping("/year-sessions/values")
+    public ResponseEntity<List<String>> getAllYearSessionsValueOnly(YearSessionCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get YearSessions value only by criteria: {}", criteria);
+        Page<YearSession> page = yearSessionQueryService.findByCriteria(criteria, pageable);
+        List<String> entityList = page.stream()
+            .map(YearSession::getValue)
+            .collect(Collectors.toList());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(entityList);
     }
 
     @GetMapping("/year-sessions/count")
