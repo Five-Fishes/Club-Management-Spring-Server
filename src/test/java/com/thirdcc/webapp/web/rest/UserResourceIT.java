@@ -723,7 +723,6 @@ public class UserResourceIT {
     @Test
     @Transactional
     public void getUserWithoutFamily_ShouldReturn200() throws Exception {
-        userRepository.deleteAll();
        userRepository.saveAndFlush(user);
 
         // Get all the users
@@ -758,7 +757,6 @@ public class UserResourceIT {
     @Test
     @Transactional
     public void getUserWithFamily_ShouldReturn200() throws Exception {
-        userRepository.deleteAll();
         User savedUser = userRepository.saveAndFlush(user);
 
         UserCCInfo userCCInfo = createUserCCInfoEntity();

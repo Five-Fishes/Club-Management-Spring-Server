@@ -238,9 +238,9 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of users in body.
      */
     @GetMapping(value="/users", params="family")
-    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (Pageable pageable, @RequestParam("family") Boolean hasFamily){
+    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (@RequestParam("family") Boolean hasFamily){
         log.debug("REST request to get users without assigned family");
-        List<UserDTO> users = userService.getUsersWithFamilyCheck(pageable, hasFamily);
+        List<UserDTO> users = userService.getUsersWithFamilyCheck(hasFamily);
         return ResponseEntity.ok().body(users);
     }
 }

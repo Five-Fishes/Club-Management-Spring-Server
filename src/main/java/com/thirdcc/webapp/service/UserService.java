@@ -379,8 +379,8 @@ public class UserService {
      *
      * @return a list of all users without assigned family.
      */
-    public List<UserDTO> getUsersWithFamilyCheck(Pageable pageable, boolean hasFamily){
-        List<UserDTO> userDTOList = userRepository.findAllByLoginNot(pageable, Constants.ANONYMOUS_USER).map(UserDTO::new).getContent();
+    public List<UserDTO> getUsersWithFamilyCheck(boolean hasFamily){
+        List<UserDTO> userDTOList = userRepository.findAll().stream().map(UserDTO::new).collect(Collectors.toList());;
             return userDTOList
                 .stream()
                 .filter(user -> {
