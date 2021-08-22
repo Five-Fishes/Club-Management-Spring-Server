@@ -726,7 +726,7 @@ public class UserResourceIT {
        userRepository.saveAndFlush(user);
 
         // Get all the users
-        restUserMockMvc.perform(get("/api/users?family=false")
+        restUserMockMvc.perform(get("/api/users/family?hasFamily=false")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -748,7 +748,7 @@ public class UserResourceIT {
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
         // Get all the users
-        restUserMockMvc.perform(get("/api/users?family=false")
+        restUserMockMvc.perform(get("/api/users/family?hasFamily=false")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(databaseSizeBeforeUpdate-1)));
@@ -764,7 +764,7 @@ public class UserResourceIT {
         userCCInfoRepository.saveAndFlush(userCCInfo);
 
         // Get all the users
-        restUserMockMvc.perform(get("/api/users?family=true")
+        restUserMockMvc.perform(get("/api/users/family?hasFamily=true")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
@@ -782,7 +782,7 @@ public class UserResourceIT {
         userRepository.saveAndFlush(user);
 
         // Get all the users
-        restUserMockMvc.perform(get("/api/users?family=true")
+        restUserMockMvc.perform(get("/api/users/family?hasFamily=true")
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))

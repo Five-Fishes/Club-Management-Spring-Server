@@ -237,8 +237,8 @@ public class UserResource {
      * @param hasFamily checking user's UserCCInfo is exist or not
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of users in body.
      */
-    @GetMapping(value="/users", params="family")
-    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (@RequestParam("family") Boolean hasFamily){
+    @GetMapping(value="/users/family", params="hasFamily")
+    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (@RequestParam Boolean hasFamily){
         log.debug("REST request to get users without assigned family");
         List<UserDTO> users = userService.getUsersWithFamilyCheck(hasFamily);
         return ResponseEntity.ok().body(users);
