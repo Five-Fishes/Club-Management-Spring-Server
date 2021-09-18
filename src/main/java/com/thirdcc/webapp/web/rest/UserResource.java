@@ -226,8 +226,21 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of users in body.
      */
     @GetMapping("/users/event-crews/{eventId}")
-    public List<UserDTO> getNotEventCrewUsers (Pageable pageable, @PathVariable Long eventId) {
+    public ResponseEntity<List<UserDTO>> getNotEventCrewUsers (Pageable pageable, @PathVariable Long eventId) {
         log.debug("REST request to get not event crew user of event: {}", eventId);
-        return userService.getNotEventCrewUsers(pageable, eventId);
+        List<UserDTO> users = userService.getNotEventCrewUsers(pageable, eventId);
+        return ResponseEntity.ok().body(users);
+    }
+
+    /**
+     * {@code GET /users/family} : get all users that have no assigned family.
+     * @param hasFamily checking user's UserCCInfo is exist or not
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of users in body.
+     */
+    @GetMapping(value="/users/family", params="hasFamily")
+    public ResponseEntity<List<UserDTO>> getUsersWithFamilyCheck (@RequestParam Boolean hasFamily){
+        log.debug("REST request to get users without assigned family");
+        List<UserDTO> users = userService.getUsersWithFamilyCheck(hasFamily);
+        return ResponseEntity.ok().body(users);
     }
 }

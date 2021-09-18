@@ -1,5 +1,7 @@
 package com.thirdcc.webapp.domain;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
+import com.thirdcc.webapp.service.dto.UserDTO;
+import com.thirdcc.webapp.service.mapper.UserMapper;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -138,7 +140,11 @@ public class UserCCInfo implements Serializable {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDTO user) {
+        this.user = new UserMapper().userDTOToUser(user);
+    }
+
+    public void setUserEntity(User user) {
         this.user = user;
     }
 
