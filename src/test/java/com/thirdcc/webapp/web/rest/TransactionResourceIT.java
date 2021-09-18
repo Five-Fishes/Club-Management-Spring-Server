@@ -285,7 +285,6 @@ public class TransactionResourceIT {
     void getAllTransactionsByEventIdIsNotEqualToSomething() throws Exception {
         // Initialize the database
         transactionRepository.saveAndFlush(transaction);
-        System.out.println("ALERT: " + transaction.getCreatedBy());
 
         // Get all the transactionList where eventId not equals to DEFAULT_EVENT_ID
         defaultTransactionShouldNotBeFound("eventId.notEquals=" + DEFAULT_EVENT_ID);
@@ -521,7 +520,6 @@ public class TransactionResourceIT {
     private void defaultTransactionShouldBeFound(String filter) throws Exception {
         User currentUser = getCurrentUser();
         String currentUserName = currentUser.getFirstName() + " " + currentUser.getLastName();
-        System.out.println(transaction);
         restTransactionMockMvc
             .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
@@ -1045,7 +1043,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithEventHead
     public void updateTransactionStatus_UserIsNotAdmin_ShouldThrow403IsForbidden() throws Exception {
@@ -1072,7 +1070,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithCurrentCCAdministrator
     public void updateTransactionStatus_TransactionIsNotExists_ShouldThrow400BadRequest() throws Exception {
@@ -1099,7 +1097,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithCurrentCCAdministrator
     public void updateTransactionStatus_TransactionIsNotPending_ShouldThrow400BadRequest() throws Exception {
