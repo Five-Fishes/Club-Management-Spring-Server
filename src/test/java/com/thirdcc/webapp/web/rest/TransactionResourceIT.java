@@ -117,7 +117,7 @@ public class TransactionResourceIT {
     private static final EventStatus DEFAULT_EVENT_STATUS = EventStatus.OPEN;
     private static final String DEFAULT_RECEIPT_IMAGE_TYPE = "DEFAULT_RECEIPT_IMAGE_TYPE";
     private static final String DEFAULT_RECEIPT_IMAGE_FILENAME = "DEFAULT_RECEIPT_IMAGE_FILENAME";
-    private static final String DEFAULT_RECEIPT_IMAGE_CONTENT = "DEAFULT_RECEIPT_IMAGE_CONTENT";
+    private static final String DEFAULT_RECEIPT_IMAGE_CONTENT = "DEFAULT_RECEIPT_IMAGE_CONTENT";
 
     // Event Crew Default data
     private static final Long DEFAULT_USER_ID = 1L;
@@ -518,6 +518,8 @@ public class TransactionResourceIT {
      * Executes the search, and checks that the default entity is returned.
      */
     private void defaultTransactionShouldBeFound(String filter) throws Exception {
+        User currentUser = getCurrentUser();
+        String currentUserName = currentUser.getFirstName() + " " + currentUser.getLastName();
         restTransactionMockMvc
             .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
             .andExpect(status().isOk())
@@ -531,7 +533,7 @@ public class TransactionResourceIT {
             .andExpect(jsonPath("$.[*].transactionAmount").value(hasItem(sameNumber(DEFAULT_AMOUNT))))
             .andExpect(jsonPath("$.[*].imageLink").value(hasItem(DEFAULT_IMAGE_LINK)))
             .andExpect(jsonPath("$.[*].closedBy").value(hasItem(DEFAULT_CLOSED_BY)))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(currentUserName)))
             .andExpect(jsonPath("$.[*].createdDate").value(Matchers.notNullValue()))
             .andExpect(jsonPath("$.[*].lastModifiedBy").value(hasItem(DEFAULT_LAST_MODIFIED_BY)))
             .andExpect(jsonPath("$.[*].lastModifiedDate").value(Matchers.notNullValue()));
@@ -1041,7 +1043,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithEventHead
     public void updateTransactionStatus_UserIsNotAdmin_ShouldThrow403IsForbidden() throws Exception {
@@ -1068,7 +1070,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithCurrentCCAdministrator
     public void updateTransactionStatus_TransactionIsNotExists_ShouldThrow400BadRequest() throws Exception {
@@ -1095,7 +1097,7 @@ public class TransactionResourceIT {
         assertThat(testTransaction.getTransactionDate()).isEqualTo(DEFAULT_TRANSACTION_DATE);
         assertThat(testTransaction.getImageLink()).isEqualTo(DEFAULT_IMAGE_LINK);
     }
-    
+
     @Test
     @WithCurrentCCAdministrator
     public void updateTransactionStatus_TransactionIsNotPending_ShouldThrow400BadRequest() throws Exception {
@@ -1172,9 +1174,9 @@ public class TransactionResourceIT {
         assertThat(transactionMapper.fromId(null)).isNull();
     }
 
-    private User getLoggedInUser() {
-        return userService.getUserWithAuthorities()
-            .orElseThrow(() -> new BadRequestException("User not login"));
+    private User getCurrentUser() {
+        return userRepository.findOneByLogin(USERNAME)
+            .orElseThrow(()-> new BadRequestException("User not found"));
     }
 
     private Transaction initTransactionDB() {
@@ -1188,7 +1190,7 @@ public class TransactionResourceIT {
     private EventCrew initEventCrewDB() { return eventCrewRepository.saveAndFlush(eventCrew); }
 
     private EventCrew getEventCrewByCurrentLoginUser() {
-        User currentUser = SecurityUtils
+        User currentUser =  SecurityUtils
             .getCurrentUserLogin()
             .flatMap(userRepository::findOneWithAuthoritiesByLogin)
             .orElseThrow(() -> new BadRequestException("Cannot find user"));

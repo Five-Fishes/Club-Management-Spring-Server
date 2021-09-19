@@ -94,8 +94,11 @@ public class TransactionServiceImpl implements TransactionService {
             );
         }
 
+        boolean hasImageLink = transactionDTO.getImageLink() != null && !transactionDTO.getImageLink().isEmpty();
+        boolean hasImageFile = multipartFile != null && !multipartFile.isEmpty();
+
         // Generate imageLink if required
-        if (transactionDTO.getImageLink() == null || transactionDTO.getImageLink().isEmpty()){
+        if ( !hasImageLink && hasImageFile ){
             // Create new Image
             ImageStorageDTO imageStorageDTO = new ImageStorageDTO();
             String imageLink = imageStorageService.save(imageStorageDTO, multipartFile).getImageUrl();
@@ -213,11 +216,16 @@ public class TransactionServiceImpl implements TransactionService {
         boolean hasTransactionAmount = transactionDTO.getTransactionAmount() != null && transactionDTO.getTransactionAmount().intValue() >= 0;
         boolean hasTransactionStatus = transactionDTO.getTransactionStatus() != null;
         boolean hasImageLink = (transactionDTO.getImageLink() != null && !transactionDTO.getImageLink().isEmpty());
+        boolean hasMultipartFile = multipartFile != null && !multipartFile.isEmpty();
 
         if (transactionDTO.getTransactionType() == TransactionType.EXPENSE){
             // if there is no image link, then it is a new transaction, thus must have an image file to be uploaded
             if (!hasImageLink){
-                if (multipartFile == null || multipartFile.isEmpty()) return false;
+                if (!hasMultipartFile) {
+                    return false;
+                }else {
+                    return (hasTitle && hasMultipartFile && hasTransactionAmount && hasTransactionStatus);
+                }
             }
             return (hasTitle && hasImageLink && hasTransactionAmount && hasTransactionStatus);
         }else{
