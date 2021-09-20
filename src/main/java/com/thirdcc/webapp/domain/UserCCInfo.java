@@ -1,7 +1,9 @@
 package com.thirdcc.webapp.domain;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.service.dto.UserDTO;
+import com.thirdcc.webapp.service.dto.UserUniInfoDTO;
 import com.thirdcc.webapp.service.mapper.UserMapper;
+import com.thirdcc.webapp.service.mapper.UserUniInfoMapperImpl;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -152,7 +154,11 @@ public class UserCCInfo implements Serializable {
         return userUniInfo;
     }
 
-    public void setUserUniInfo(UserUniInfo userUniInfo) {
+    public void setUserUniInfo(UserUniInfoDTO userUniInfo) {
+        this.userUniInfo = new UserUniInfoMapperImpl().toEntity(userUniInfo);
+    }
+
+    public void setUserUniInfoEntity(UserUniInfo userUniInfo) {
         this.userUniInfo = userUniInfo;
     }
 }

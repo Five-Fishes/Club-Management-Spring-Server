@@ -50,4 +50,18 @@ public class CourseProgramResource {
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(uriBuilder.queryParams(queryParams), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
+
+    /**
+     * {@code GET  /course-programs/faculty/{facultyId}} : get all the course program.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of faculties in body.
+     */
+    @GetMapping("/course-programs/faculty")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<CourseProgram>> getAllCoursePrograms() {
+        log.debug("REST request to get all Course Programs");
+        List<CourseProgram> entityList = courseProgramService.findAll();
+        return ResponseEntity.ok().body(entityList);
+    }
+
 }
