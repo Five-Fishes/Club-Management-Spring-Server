@@ -52,7 +52,7 @@ public class CourseProgramResource {
     }
 
     /**
-     * {@code GET  /course-programs/faculty/{facultyId}} : get all the course program.
+     * {@code GET  /course-programs/faculty} : get all the course program.
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of faculties in body.
      */
