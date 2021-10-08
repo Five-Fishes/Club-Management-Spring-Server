@@ -4,9 +4,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.thirdcc.webapp.domain.User;
+import com.thirdcc.webapp.domain.UserUniInfo;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyCode;
 import com.thirdcc.webapp.domain.enumeration.ClubFamilyRole;
 import com.thirdcc.webapp.service.mapper.UserMapper;
+import com.thirdcc.webapp.service.mapper.UserUniInfoMapperImpl;
 
 /**
  * A DTO for the {@link com.thirdcc.webapp.domain.UserCCInfo} entity.
@@ -26,7 +28,7 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilySlogan = clubFamilySlogan;
     }
 
-    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, UserDTO user) {
+    public UserCCInfoDTO(Long id, Long userId, ClubFamilyCode clubFamilyCode, ClubFamilyRole familyRole, String yearSession, String fishLevel, String clubFamilyName, String clubFamilySlogan, UserDTO user, UserUniInfoDTO userUniInfo) {
         this.id = id;
         this.userId = userId;
         this.clubFamilyCode = clubFamilyCode;
@@ -36,6 +38,7 @@ public class UserCCInfoDTO implements Serializable {
         this.clubFamilyName = clubFamilyName;
         this.clubFamilySlogan = clubFamilySlogan;
         this.user = user;
+        this.userUniInfo = userUniInfo;
     }
 
     private Long id;
@@ -55,6 +58,8 @@ public class UserCCInfoDTO implements Serializable {
     private String clubFamilySlogan;
 
     private UserDTO user;
+
+    private UserUniInfoDTO userUniInfo;
 
     public Long getId() {
         return id;
@@ -163,7 +168,13 @@ public class UserCCInfoDTO implements Serializable {
         this.user = user;
     }
 
+    public UserUniInfoDTO getUserUniInfo() {
+        return userUniInfo;
+    }
 
+    public void setUserUniInfo(UserUniInfoDTO userUniInfo) {
+        this.userUniInfo = userUniInfo;
+    }
     public static Builder builder() {
         return new Builder();
     }
@@ -179,6 +190,7 @@ public class UserCCInfoDTO implements Serializable {
         private String clubFamilyName;
         private String clubFamilySlogan;
         private UserDTO user;
+        private UserUniInfoDTO userUniInfo;
 
         public Builder id(Long id) {
             this.id = id;
@@ -227,8 +239,15 @@ public class UserCCInfoDTO implements Serializable {
             return this;
         }
 
+        public Builder setUserUniInfo (UserUniInfo userUniInfo) {
+            if(userUniInfo != null) {
+                this.userUniInfo = new UserUniInfoMapperImpl().toDto(userUniInfo);
+            }
+            return this;
+        }
+
         public UserCCInfoDTO build() {
-            return new UserCCInfoDTO(id, userId, clubFamilyCode, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan, user);
+            return new UserCCInfoDTO(id, userId, clubFamilyCode, familyRole, yearSession, fishLevel, clubFamilyName, clubFamilySlogan, user, userUniInfo);
         }
     }
 }

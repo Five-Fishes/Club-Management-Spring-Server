@@ -92,6 +92,24 @@ public class CourseProgramResourceIT {
             .andExpect(jsonPath("$.[*].facultyId").value(hasItem(savedFaculty.getId().intValue())));
     }
 
+    @Test
+    @WithNormalUser
+    public void getAllCourseProgram() throws Exception {
+        // Initialize the database
+        Faculty savedFaculty = initFaculty(createFacultyEntity());
+        CourseProgram courseProgram = createCourseProgramEntity();
+        courseProgram.setFacultyId(savedFaculty.getId());
+        CourseProgram savedCourseProgram = initCourseProgram(courseProgram);
+
+        restEventActivityMockMvc.perform(get("/api/course-programs/faculty", savedFaculty.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(savedCourseProgram.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_COURSE_PROGRAM_NAME)))
+            .andExpect(jsonPath("$.[*].numOfSem").value(hasItem(DEFAULT_COURSE_PROGRAM_NUM_OF_SEM)))
+            .andExpect(jsonPath("$.[*].facultyId").value(hasItem(savedFaculty.getId().intValue())));
+    }
+
     private CourseProgram initCourseProgram(CourseProgram courseProgram) {
         return courseProgramRepository.save(courseProgram);
     }
