@@ -70,6 +70,10 @@ public class UserCCInfoServiceImpl implements UserCCInfoService {
     @Override
     public UserCCInfoDTO save(UserCCInfoDTO userCCInfoDTO) {
         log.debug("Request to save UserCCInfo : {}", userCCInfoDTO);
+        userUniInfoService.getUserUniInfoByUserId(userCCInfoDTO.getUserId())
+            .ifPresent(uniInfo -> {
+                userCCInfoDTO.setYearSession(uniInfo.getYearSession());
+            });
         UserCCInfo userCCInfo = userCCInfoMapper.toEntity(userCCInfoDTO);
         userCCInfo = userCCInfoRepository.save(userCCInfo);
         return userCCInfoMapper.toDto(userCCInfo);
